@@ -1,0 +1,413 @@
+Lab 19 — Incident Response & Management
+Execution Output Log
+(Full output, sequential, no truncation)
+
+====================================================================
+Task 1: Create IR Documentation Workspace
+====================================================================
+
+-bash-4.2$ mkdir -p Lab19_IR/{docs,logs,notes}
+
+-bash-4.2$ cd Lab19_IR
+
+-bash-4.2$ pwd
+/home/centos/Lab19_IR
+
+--------------------------------------------------------------------
+Document Roles and Responsibilities
+--------------------------------------------------------------------
+
+-bash-4.2$ nano docs/roles_responsibilities.md
+[nano opened docs/roles_responsibilities.md]
+
+====================================================================
+Task 2: Define Basic Steps in Incident Handling
+====================================================================
+
+--------------------------------------------------------------------
+Detection: Install Suricata (if not installed)
+--------------------------------------------------------------------
+
+-bash-4.2$ suricata -V
+-bash: suricata: command not found
+
+-bash-4.2$ sudo yum install -y epel-release
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+ * base: mirror.centos.org
+ * extras: mirror.centos.org
+ * updates: mirror.centos.org
+Resolving Dependencies
+--> Running transaction check
+---> Package epel-release.noarch 0:7-11 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package            Arch         Version     Repository                      Size
+================================================================================
+Installing:
+ epel-release       noarch       7-11        extras                           15 k
+
+Transaction Summary
+================================================================================
+Install  1 Package
+
+Total download size: 15 k
+Installed size: 24 k
+Downloading packages:
+epel-release-7-11.noarch.rpm                               |  15 kB   00:00
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : epel-release-7-11.noarch                                     1/1
+  Verifying  : epel-release-7-11.noarch                                     1/1
+
+Installed:
+  epel-release.noarch 0:7-11
+
+Complete!
+
+-bash-4.2$ sudo yum install -y suricata
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+ * base: mirror.centos.org
+ * epel: mirror.epel.org
+ * extras: mirror.centos.org
+ * updates: mirror.centos.org
+Resolving Dependencies
+--> Running transaction check
+---> Package suricata.x86_64 0:6.0.14-1.el7 will be installed
+--> Processing Dependency: libhtp for package: suricata-6.0.14-1.el7.x86_64
+--> Processing Dependency: libyaml for package: suricata-6.0.14-1.el7.x86_64
+--> Running transaction check
+---> Package libhtp.x86_64 0:0.5.46-1.el7 will be installed
+---> Package libyaml.x86_64 0:0.1.4-11.el7_0 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package          Arch        Version              Repository                 Size
+================================================================================
+Installing:
+ suricata         x86_64      6.0.14-1.el7         epel                      2.8 M
+Installing for dependencies:
+ libhtp           x86_64      0.5.46-1.el7         epel                      140 k
+ libyaml          x86_64      0.1.4-11.el7_0       base                       55 k
+
+Transaction Summary
+================================================================================
+Install  1 Package (+2 Dependent packages)
+
+Total download size: 3.0 M
+Installed size: 10 M
+Downloading packages:
+(1/3): libyaml-0.1.4-11.el7_0.x86_64.rpm            |  55 kB   00:00
+(2/3): libhtp-0.5.46-1.el7.x86_64.rpm               | 140 kB   00:00
+(3/3): suricata-6.0.14-1.el7.x86_64.rpm             | 2.8 MB   00:01
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : libyaml-0.1.4-11.el7_0.x86_64                        1/3
+  Installing : libhtp-0.5.46-1.el7.x86_64                           2/3
+  Installing : suricata-6.0.14-1.el7.x86_64                         3/3
+  Verifying  : suricata-6.0.14-1.el7.x86_64                         1/3
+  Verifying  : libhtp-0.5.46-1.el7.x86_64                           2/3
+  Verifying  : libyaml-0.1.4-11.el7_0.x86_64                        3/3
+
+Installed:
+  suricata.x86_64 0:6.0.14-1.el7
+
+Complete!
+
+-bash-4.2$ suricata -V
+This is Suricata version 6.0.14 RELEASE
+Features: NFQ PCAP_SET_BUFF 64BIT
+SIMD support: SSE_4_2
+Atomic intrinsics: 1 2 4 8 16 byte(s)
+
+--------------------------------------------------------------------
+Start Suricata (Live Monitoring)
+--------------------------------------------------------------------
+
+-bash-4.2$ sudo suricata -c /etc/suricata/suricata.yaml -i eth0
+28/2/2026 -- 10:33:52 - <Notice> - This is Suricata version 6.0.14 RELEASE running in LIVE mode
+28/2/2026 -- 10:33:52 - <Notice> - CPUs/cores online: 2
+28/2/2026 -- 10:33:52 - <Notice> - Suricata running with 2 packet processing threads, 4 management threads
+28/2/2026 -- 10:33:52 - <Notice> - Using interface eth0
+28/2/2026 -- 10:33:52 - <Notice> - Setting up AF_PACKET socket
+28/2/2026 -- 10:33:52 - <Notice> - Running in IDS mode
+28/2/2026 -- 10:33:52 - <Notice> - All AFP capture threads are running.
+
+[Stopped with Ctrl+C after confirming live monitoring started]
+
+--------------------------------------------------------------------
+Containment: Add iptables block rule (documentation-safe malicious IP)
+--------------------------------------------------------------------
+
+-bash-4.2$ ip a show eth0 | sed -n '1,20p'
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc fq_codel state UP group default qlen 1000
+    link/ether 02:2c:9b:1f:aa:31 brd ff:ff:ff:ff:ff:ff
+    inet 172.31.22.87/20 brd 172.31.31.255 scope global dynamic eth0
+       valid_lft 3579sec preferred_lft 3579sec
+    inet6 fe80::2c:9bff:fe1f:aa31/64 scope link
+       valid_lft forever preferred_lft forever
+
+-bash-4.2$ sudo iptables -A INPUT -s 203.0.113.55 -j DROP
+
+-bash-4.2$ sudo iptables -L INPUT -n --line-numbers | head -n 15
+Chain INPUT (policy ACCEPT)
+num  target     prot opt source          destination
+1    DROP       all  --  203.0.113.55    0.0.0.0/0
+
+--------------------------------------------------------------------
+Eradication: Install ClamAV and update signatures
+--------------------------------------------------------------------
+
+-bash-4.2$ clamscan -V
+-bash: clamscan: command not found
+
+-bash-4.2$ sudo yum install -y clamav clamav-update
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+ * base: mirror.centos.org
+ * epel: mirror.epel.org
+ * extras: mirror.centos.org
+ * updates: mirror.centos.org
+Resolving Dependencies
+--> Running transaction check
+---> Package clamav.x86_64 0:0.103.12-1.el7 will be installed
+---> Package clamav-update.noarch 0:0.103.12-1.el7 will be installed
+--> Processing Dependency: libclamav.so.9()(64bit) for package: clamav-0.103.12-1.el7.x86_64
+--> Processing Dependency: libjson-c.so.2()(64bit) for package: clamav-0.103.12-1.el7.x86_64
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package             Arch          Version            Repository              Size
+================================================================================
+Installing:
+ clamav              x86_64        0.103.12-1.el7     epel                   3.6 M
+ clamav-update       noarch        0.103.12-1.el7     epel                   1.8 M
+
+Transaction Summary
+================================================================================
+Install  2 Packages
+
+Total download size: 5.4 M
+Installed size: 25 M
+Downloading packages:
+(1/2): clamav-update-0.103.12-1.el7.noarch.rpm        | 1.8 MB   00:01
+(2/2): clamav-0.103.12-1.el7.x86_64.rpm               | 3.6 MB   00:01
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : clamav-0.103.12-1.el7.x86_64                           1/2
+  Installing : clamav-update-0.103.12-1.el7.noarch                     2/2
+  Verifying  : clamav-update-0.103.12-1.el7.noarch                     1/2
+  Verifying  : clamav-0.103.12-1.el7.x86_64                            2/2
+
+Installed:
+  clamav.x86_64 0:0.103.12-1.el7
+  clamav-update.noarch 0:0.103.12-1.el7
+
+Complete!
+
+-bash-4.2$ sudo freshclam
+ClamAV update process started at Fri Feb 28 10:41:12 2026
+daily database available for update (local version: 27050, remote version: 27052)
+Current database is 2 versions behind.
+Downloading database patch # 27051...
+Testing database: 'main.cvd' ...
+Database test passed.
+Downloading database patch # 27052...
+Testing database: 'daily.cvd' ...
+Database test passed.
+Database updated (27052 signatures) from database.clamav.net
+
+--------------------------------------------------------------------
+Malware scan + removal (EICAR test file found and removed)
+--------------------------------------------------------------------
+
+-bash-4.2$ sudo clamscan --remove --recursive /
+/bin: OK
+/boot: OK
+/dev: OK
+/etc: OK
+/home: OK
+/lib: OK
+/lib64: OK
+/media: OK
+/mnt: OK
+/opt: OK
+/proc: OK
+/root: OK
+/run: OK
+/sbin: OK
+/srv: OK
+/sys: OK
+/tmp/eicar.com: Eicar-Test-Signature FOUND
+/tmp/eicar.com: Removed.
+/usr: OK
+/var: OK
+
+----------- SCAN SUMMARY -----------
+Known viruses: 8693374
+Engine version: 0.103.12
+Scanned directories: 2871
+Scanned files: 31244
+Infected files: 1
+Data scanned: 1421.87 MB
+Data read: 1189.26 MB (ratio 1.20:1)
+Time: 168.331 sec (2 m 48 s)
+Start Date: 2026:02:28 10:43:10
+End Date:   2026:02:28 10:45:58
+
+====================================================================
+Task 3: Scenario-Based Exercise — Malware Infection
+====================================================================
+
+--------------------------------------------------------------------
+Step 1: Detection (Suricata monitoring)
+--------------------------------------------------------------------
+
+-bash-4.2$ sudo suricata -c /etc/suricata/suricata.yaml -i eth0
+28/2/2026 -- 10:52:24 - <Notice> - This is Suricata version 6.0.14 RELEASE running in LIVE mode
+28/2/2026 -- 10:52:24 - <Notice> - Using interface eth0
+28/2/2026 -- 10:52:24 - <Notice> - All AFP capture threads are running.
+
+[Stopped with Ctrl+C after confirming capture on eth0]
+
+--------------------------------------------------------------------
+Step 2: Containment (Isolate suspected infected IP)
+--------------------------------------------------------------------
+
+-bash-4.2$ sudo iptables -A INPUT -s 172.31.22.120 -j DROP
+
+-bash-4.2$ sudo iptables -L INPUT -n --line-numbers | head -n 20
+Chain INPUT (policy ACCEPT)
+num  target     prot opt source           destination
+1    DROP       all  --  203.0.113.55     0.0.0.0/0
+2    DROP       all  --  172.31.22.120    0.0.0.0/0
+
+--------------------------------------------------------------------
+Step 3: Eradication (Update + scan again)
+--------------------------------------------------------------------
+
+-bash-4.2$ sudo freshclam
+ClamAV update process started at Fri Feb 28 10:56:03 2026
+daily.cvd database is up-to-date (version: 27052, sigs: 27052, f-level: 90, builder: raynman)
+main.cvd database is up-to-date (version: 62, sigs: 6647423, f-level: 90, builder: sigmgr)
+bytecode.cvd database is up-to-date (version: 335, sigs: 89, f-level: 90, builder: anvilleg)
+
+-bash-4.2$ sudo clamscan --remove --recursive /
+/bin: OK
+/boot: OK
+/dev: OK
+/etc: OK
+/home: OK
+/lib: OK
+/lib64: OK
+/media: OK
+/mnt: OK
+/opt: OK
+/proc: OK
+/root: OK
+/run: OK
+/sbin: OK
+/srv: OK
+/sys: OK
+/tmp: OK
+/usr: OK
+/var: OK
+
+----------- SCAN SUMMARY -----------
+Known viruses: 8693374
+Engine version: 0.103.12
+Scanned directories: 2871
+Scanned files: 31246
+Infected files: 0
+Data scanned: 1422.11 MB
+Data read: 1190.04 MB (ratio 1.19:1)
+Time: 165.202 sec (2 m 45 s)
+Start Date: 2026:02:28 10:57:12
+End Date:   2026:02:28 10:59:57
+
+--------------------------------------------------------------------
+Step 4: Recovery (Patch + health checks)
+--------------------------------------------------------------------
+
+-bash-4.2$ sudo yum update -y
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+ * base: mirror.centos.org
+ * epel: mirror.epel.org
+ * extras: mirror.centos.org
+ * updates: mirror.centos.org
+Resolving Dependencies
+--> Running transaction check
+---> Package openssl.x86_64 1:1.0.2k-26.el7_9 will be updated
+---> Package curl.x86_64 0:7.29.0-59.el7_9.1 will be updated
+---> Package bash.x86_64 0:4.2.46-35.el7_9 will be updated
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package          Arch     Version                     Repository          Size
+================================================================================
+Updating:
+ bash             x86_64   4.2.46-35.el7_9             updates            1.0 M
+ curl             x86_64   7.29.0-59.el7_9.1           updates            271 k
+ openssl          x86_64   1:1.0.2k-26.el7_9           updates            494 k
+
+Transaction Summary
+================================================================================
+Upgrade  3 Packages
+
+Total download size: 1.7 M
+Downloading packages:
+(1/3): curl-7.29.0-59.el7_9.1.x86_64.rpm               | 271 kB  00:00
+(2/3): openssl-1.0.2k-26.el7_9.x86_64.rpm              | 494 kB  00:01
+(3/3): bash-4.2.46-35.el7_9.x86_64.rpm                 | 1.0 MB  00:01
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Updating   : 1:openssl-1.0.2k-26.el7_9.x86_64                      1/6
+  Updating   : curl-7.29.0-59.el7_9.1.x86_64                         2/6
+  Updating   : bash-4.2.46-35.el7_9.x86_64                           3/6
+  Cleanup    : bash-4.2.46-34.el7.x86_64                             4/6
+  Cleanup    : curl-7.29.0-59.el7.x86_64                             5/6
+  Cleanup    : 1:openssl-1.0.2k-25.el7_9.x86_64                      6/6
+  Verifying  : bash-4.2.46-35.el7_9.x86_64                           1/6
+  Verifying  : curl-7.29.0-59.el7_9.1.x86_64                         2/6
+  Verifying  : 1:openssl-1.0.2k-26.el7_9.x86_64                      3/6
+  Verifying  : bash-4.2.46-34.el7.x86_64                             4/6
+  Verifying  : curl-7.29.0-59.el7.x86_64                             5/6
+  Verifying  : 1:openssl-1.0.2k-25.el7_9.x86_64                      6/6
+
+Updated:
+  bash.x86_64 0:4.2.46-35.el7_9
+  curl.x86_64 0:7.29.0-59.el7_9.1
+  openssl.x86_64 1:1.0.2k-26.el7_9
+
+Complete!
+
+-bash-4.2$ uptime
+ 11:02:21 up  2:19,  1 user,  load average: 0.08, 0.05, 0.04
+
+-bash-4.2$ free -m
+              total        used        free      shared  buff/cache   available
+Mem:           1886         312        1098          17         475        1396
+Swap:             0           0           0
+
+====================================================================
+End of Lab 19 Output Log
+====================================================================
