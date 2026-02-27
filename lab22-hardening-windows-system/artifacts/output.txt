@@ -1,0 +1,126 @@
+Windows Hardening Lab — Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: PowerShell outputs below are sample/simulated outputs from an authorized lab VM and formatted like a real lab transcript for GitHub documentation.
+
+====================================================================
+Task 1: Disabling Unnecessary Windows Services (Telnet Client)
+====================================================================
+
+PS C:\Windows\system32> Get-WindowsOptionalFeature -Online -FeatureName TelnetClient
+
+FeatureName      : TelnetClient
+State            : Enabled
+CustomProperties :
+                 ServerComponent\Description : Telnet Client
+                 ServerComponent\DisplayName : Telnet Client
+                 ServerComponent\Id : 12345
+
+PS C:\Windows\system32> Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient
+
+Path          :
+Online        : True
+RestartNeeded : False
+
+PS C:\Windows\system32> Get-WindowsOptionalFeature -Online -FeatureName TelnetClient
+
+FeatureName      : TelnetClient
+State            : Disabled
+CustomProperties :
+                 ServerComponent\Description : Telnet Client
+                 ServerComponent\DisplayName : Telnet Client
+                 ServerComponent\Id : 12345
+
+====================================================================
+Task 2: Enforcing Password Complexity and Lockout Policies
+====================================================================
+
+--------------------------------------------------------------------
+2.1 Password Policy (export + verification)
+--------------------------------------------------------------------
+
+PS C:\Windows\system32> secedit /export /cfg C:\password_policy.cfg
+The task has completed successfully.
+
+PS C:\Windows\system32> Select-String -Path C:\password_policy.cfg -Pattern "PasswordHistorySize|MinimumPasswordLength|PasswordComplexity"
+
+C:\password_policy.cfg:PasswordHistorySize = 5
+C:\password_policy.cfg:MinimumPasswordLength = 8
+C:\password_policy.cfg:PasswordComplexity = 1
+
+--------------------------------------------------------------------
+2.2 Account Lockout Policy verification
+--------------------------------------------------------------------
+
+PS C:\Windows\system32> net accounts
+
+Force user logoff how long after time expires?:       Never
+Minimum password age (days):                         0
+Maximum password age (days):                         42
+Minimum password length:                             8
+Length of password history maintained:               5
+Lockout threshold:                                   5
+Lockout duration (minutes):                          15
+Lockout observation window (minutes):                30
+Computer role:                                       WORKSTATION
+The command completed successfully.
+
+====================================================================
+Task 3: Comparing System State Before and After Changes
+====================================================================
+
+--------------------------------------------------------------------
+3.1 Save Initial System State (CSV export)
+--------------------------------------------------------------------
+
+PS C:\Windows\system32> $initial = [PSCustomObject]@{
+>>     ComputerName = $env:COMPUTERNAME
+>>     TelnetClientState = (Get-WindowsOptionalFeature -Online -FeatureName TelnetClient).State
+>>     MinPasswordLength = (net accounts | Select-String "Minimum password length").ToString().Split(":")[1].Trim()
+>>     PasswordHistory = (net accounts | Select-String "Length of password history").ToString().Split(":")[1].Trim()
+>>     LockoutThreshold = (net accounts | Select-String "Lockout threshold").ToString().Split(":")[1].Trim()
+>>     LockoutDuration = (net accounts | Select-String "Lockout duration").ToString().Split(":")[1].Trim()
+>>     LockoutWindow = (net accounts | Select-String "Lockout observation window").ToString().Split(":")[1].Trim()
+>> }
+PS C:\Windows\system32> $initial | Export-Csv -Path "C:\InitialSystemState.csv" -NoTypeInformation
+
+PS C:\Windows\system32> Get-Item C:\InitialSystemState.csv | Select-Object Name, Length, LastWriteTime
+
+Name                  Length LastWriteTime
+----                  ------ -------------
+InitialSystemState.csv    224 2/28/2026 10:11:52 AM
+
+--------------------------------------------------------------------
+3.2 Save Final System State (CSV export)
+--------------------------------------------------------------------
+
+PS C:\Windows\system32> $final = [PSCustomObject]@{
+>>     ComputerName = $env:COMPUTERNAME
+>>     TelnetClientState = (Get-WindowsOptionalFeature -Online -FeatureName TelnetClient).State
+>>     MinPasswordLength = (net accounts | Select-String "Minimum password length").ToString().Split(":")[1].Trim()
+>>     PasswordHistory = (net accounts | Select-String "Length of password history").ToString().Split(":")[1].Trim()
+>>     LockoutThreshold = (net accounts | Select-String "Lockout threshold").ToString().Split(":")[1].Trim()
+>>     LockoutDuration = (net accounts | Select-String "Lockout duration").ToString().Split(":")[1].Trim()
+>>     LockoutWindow = (net accounts | Select-String "Lockout observation window").ToString().Split(":")[1].Trim()
+>> }
+PS C:\Windows\system32> $final | Export-Csv -Path "C:\FinalSystemState.csv" -NoTypeInformation
+
+PS C:\Windows\system32> Get-Item C:\FinalSystemState.csv | Select-Object Name, Length, LastWriteTime
+
+Name                Length LastWriteTime
+----                ------ -------------
+FinalSystemState.csv    223 2/28/2026 10:22:18 AM
+
+--------------------------------------------------------------------
+3.3 Compare Initial vs Final State
+--------------------------------------------------------------------
+
+PS C:\Windows\system32> Compare-Object (Import-Csv C:\InitialSystemState.csv) (Import-Csv C:\FinalSystemState.csv) -Property TelnetClientState,MinPasswordLength,PasswordHistory,LockoutThreshold,LockoutDuration,LockoutWindow
+
+TelnetClientState MinPasswordLength PasswordHistory LockoutThreshold LockoutDuration LockoutWindow SideIndicator
+----------------  ---------------- --------------- --------------- -------------- ------------- ------------
+Enabled           6                0               0               0              0             <=
+Disabled          8                5               5               15             30            =>
+
+====================================================================
+End of Windows Hardening Lab Output Log
+====================================================================
