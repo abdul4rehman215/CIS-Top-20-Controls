@@ -1,0 +1,292 @@
+Hardening a Linux System — Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: Outputs below are sample/simulated outputs from an authorized lab VM, formatted to look like a real hardening session for GitHub documentation.
+
+====================================================================
+Task 1: Remove Unused Packages
+====================================================================
+
+--------------------------------------------------------------------
+List installed packages (sample excerpt)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ sudo apt list --installed
+Listing... Done
+adduser/noble,now 3.137ubuntu1 all [installed]
+apparmor/noble,now 4.0.1-0ubuntu0.2 amd64 [installed]
+apt/noble-updates,now 2.7.14build2 amd64 [installed]
+auditd/noble,now 1:3.1.2-2ubuntu2 amd64 [installed]
+bash/noble-updates,now 5.2.21-2ubuntu4.1 amd64 [installed]
+bind9-dnsutils/noble,now 1:9.18.24-0ubuntu0.24.04.1 amd64 [installed]
+bsdutils/noble,now 1:2.39.3-9ubuntu6 amd64 [installed]
+build-essential/noble,now 12.10ubuntu1 amd64 [installed]
+curl/noble-updates,now 8.5.0-2ubuntu10.2 amd64 [installed]
+dnsutils/noble,now 1:9.18.24-0ubuntu0.24.04.1 amd64 [installed]
+git/noble-updates,now 1:2.43.0-1ubuntu7.2 amd64 [installed]
+net-tools/noble,now 2.10-0.1ubuntu4 amd64 [installed]
+nmap/noble,now 7.94+dfsg1-1ubuntu2 amd64 [installed]
+openssh-server/noble-updates,now 1:9.6p1-3ubuntu13.5 amd64 [installed]
+python3/noble,now 3.12.3-0ubuntu2 amd64 [installed]
+telnet/noble,now 0.17+2.4-2ubuntu0.1 amd64 [installed]
+ufw/noble,now 0.36.2-1ubuntu1 amd64 [installed]
+vim/noble,now 2:9.1.0016-1ubuntu7 amd64 [installed]
+wget/noble,now 1.21.4-1ubuntu4 amd64 [installed]
+...
+(continued)
+
+--------------------------------------------------------------------
+Identify telnet package
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ dpkg -l | grep -E "^ii" | grep -i telnet
+ii  telnet   0.17+2.4-2ubuntu0.1  amd64  basic telnet client
+
+--------------------------------------------------------------------
+Remove unwanted package: telnet
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ sudo apt remove telnet -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following packages will be REMOVED:
+  telnet
+0 upgraded, 0 newly installed, 1 to remove and 0 not upgraded.
+After this operation, 154 kB disk space will be freed.
+(Reading database ... 121118 files and directories currently installed.)
+Removing telnet (0.17+2.4-2ubuntu0.1) ...
+Processing triggers for man-db (2.12.0-4) ...
+
+--------------------------------------------------------------------
+Optional cleanup
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ sudo apt autoremove -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+0 to remove, 0 not upgraded.
+
+====================================================================
+Task 2: Configure SSH for Enhanced Security
+====================================================================
+
+--------------------------------------------------------------------
+Backup sshd_config before editing
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+
+--------------------------------------------------------------------
+Edit SSH config (PermitRootLogin no)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ sudo nano /etc/ssh/sshd_config
+[nano opened /etc/ssh/sshd_config]
+
+[Updated/ensured the following setting exists]
+PermitRootLogin no
+
+--------------------------------------------------------------------
+Verify change present
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ sudo grep -n "^PermitRootLogin" /etc/ssh/sshd_config
+34:PermitRootLogin no
+
+--------------------------------------------------------------------
+Restart SSH service
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ sudo systemctl restart ssh
+
+--------------------------------------------------------------------
+Confirm SSH is active
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ sudo systemctl status ssh --no-pager | head -n 12
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/usr/lib/systemd/system/ssh.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2026-02-28 12:33:48 UTC; 5s ago
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+   Main PID: 2149 (sshd)
+      Tasks: 1
+     Memory: 4.2M
+        CPU: 41ms
+
+====================================================================
+Task 2.2: Implement Key-Based Authentication
+====================================================================
+
+--------------------------------------------------------------------
+Generate SSH key pair
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ ssh-keygen -t rsa -b 4096
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/toor/.ssh/id_rsa):
+Created directory '/home/toor/.ssh'.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/toor/.ssh/id_rsa
+Your public key has been saved in /home/toor/.ssh/id_rsa.pub
+The key fingerprint is:
+SHA256:7jZqv2F3Q0m0l8c3xvHkQq8gZg0xF1w8vJ7m9m2nYdQ toor@ip-172-31-10-193
+The key's randomart image is:
++---[RSA 4096]----+
+| . o..           |
+|  o + .          |
+| . + * .         |
+|  . * + .        |
+|   . = S .       |
+|    + * +        |
+|   . = * .       |
+|    o = =        |
+|     .E*o        |
++----[SHA256]-----+
+
+--------------------------------------------------------------------
+Copy public key to remote server (lab example)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ ssh-copy-id toor@192.168.56.50
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/toor/.ssh/id_rsa.pub"
+The authenticity of host '192.168.56.50 (192.168.56.50)' can't be established.
+ED25519 key fingerprint is SHA256:Z1pVd5QyX5oT2qgKqJgC6X2nQ8yC2bWm3uM2gX1dWcA.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.56.50' (ED25519) to the list of known hosts.
+toor@192.168.56.50's password:
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'toor@192.168.56.50'"
+and check to make sure that only the key(s) you wanted were added.
+
+====================================================================
+Task 3: Implement Security Baseline Using CIS Linux Benchmark
+====================================================================
+
+--------------------------------------------------------------------
+Create baseline workspace + document baseline items chosen
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~$ mkdir -p Lab_Linux_Hardening/{cis,notes,lynis} && cd Lab_Linux_Hardening
+
+toor@ip-172-31-10-193:~/Lab_Linux_Hardening$ nano notes/cis_baseline_notes.md
+[nano opened notes/cis_baseline_notes.md]
+
+====================================================================
+Task 4: Use Tools to Automate Hardening (Optional) — Lynis
+====================================================================
+
+--------------------------------------------------------------------
+Install Lynis
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~/Lab_Linux_Hardening$ sudo apt install lynis -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following NEW packages will be installed:
+  lynis
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 352 kB of archives.
+After this operation, 1,613 kB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu noble/universe amd64 lynis all 3.0.9-1 [352 kB]
+Fetched 352 kB in 1s (330 kB/s)
+Selecting previously unselected package lynis.
+(Reading database ... 121128 files and directories currently installed.)
+Preparing to unpack .../lynis_3.0.9-1_all.deb ...
+Unpacking lynis (3.0.9-1) ...
+Setting up lynis (3.0.9-1) ...
+Processing triggers for man-db (2.12.0-4) ...
+
+--------------------------------------------------------------------
+Run Lynis audit (sample/simulated excerpt)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~/Lab_Linux_Hardening$ sudo lynis audit system
+[ Lynis 3.0.9 ]
+
+################################################################################
+  Lynis security audit and hardening tool - 3.0.9
+################################################################################
+
+[+] Initializing program
+[+] Detecting system
+------------------------------------
+  Hostname:                 ip-172-31-10-193
+  Operating system:         Linux
+  Distribution:             Ubuntu 24.04.1 LTS
+  Kernel version:           6.8.0-xx-generic
+  Hardware platform:        x86_64
+------------------------------------
+
+[+] Boot and services
+------------------------------------
+  - Service Manager               [ OK ]
+  - Checking SysV services        [ OK ]
+  - Checking systemd services     [ OK ]
+
+[+] Kernel
+------------------------------------
+  - Checking default run level            [ OK ]
+  - Checking kernel parameters            [ WARNING ]
+    * Suggested: configure kernel hardening parameters (sysctl)
+
+[+] Networking
+------------------------------------
+  - Checking nameservers                [ OK ]
+  - Checking firewall status            [ WARNING ]
+    * Firewall appears to be inactive (ufw not enabled)
+
+[+] Open ports
+------------------------------------
+  - Detected listening services         [ INFO ]
+    * TCP: 22 (sshd)
+
+[+] SSH Support
+------------------------------------
+  - Checking SSH configuration          [ OK ]
+    * PermitRootLogin is set to 'no'    [ OK ]
+    * Recommended: disable PasswordAuthentication after key verification [ WARNING ]
+
+[+] Software
+------------------------------------
+  - Checking for available updates      [ WARNING ]
+    * Some packages can be upgraded
+
+[+] File systems
+------------------------------------
+  - Checking mount options              [ WARNING ]
+    * Consider nodev/nosuid/noexec for /tmp (depends on workload)
+
+================================================================================
+  Hardening index : 72 [##############------]
+  Tests performed : 238
+  Plugins enabled : 1
+
+  Warnings        : 6
+  Suggestions     : 12
+================================================================================
+
+Follow-up:
+- Read report: /var/log/lynis-report.dat
+- Log file:    /var/log/lynis.log
+
+--------------------------------------------------------------------
+Save Lynis key findings tail (repo-friendly)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-193:~/Lab_Linux_Hardening$ sudo tail -n 25 /var/log/lynis.log | tee lynis/lynis_summary_tail.log
+2026-02-28 12:48:31 Found 6 warnings
+2026-02-28 12:48:31 Found 12 suggestions
+2026-02-28 12:48:31 Hardening index: 72
+2026-02-28 12:48:31 Suggestion: Enable firewall (ufw) and allow only required ports
+2026-02-28 12:48:31 Suggestion: Disable PasswordAuthentication after key-based auth is confirmed
+2026-02-28 12:48:31 Suggestion: Apply pending security updates
+2026-02-28 12:48:31 Suggestion: Review sysctl kernel hardening settings
+
+====================================================================
+End of Linux Hardening Lab Output Log
+====================================================================
