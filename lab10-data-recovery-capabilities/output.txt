@@ -1,0 +1,82 @@
+# Lab 10: Data Recovery Capabilities (CIS Control 10)
+# Execution Output Log (Sequential)
+
+# -------------------------------------------------------
+# Task 1: Select a Folder or Small Dataset for Backup
+# -------------------------------------------------------
+
+toor@ip-172-31-10-241:~$ mkdir -p ~/Documents
+toor@ip-172-31-10-241:~$
+
+# (Created files using nano and saved)
+
+toor@ip-172-31-10-241:~$ mkdir -p ~/Documents/reports
+toor@ip-172-31-10-241:~$
+
+# (Created report file using nano and saved)
+
+toor@ip-172-31-10-241:~$ find ~/Documents -type f -maxdepth 2 -print
+/home/toor/Documents/notes.txt
+/home/toor/Documents/credentials_policy.txt
+/home/toor/Documents/reports/system_audit_report.txt
+
+# -------------------------------------------------------
+# Task 2: Perform a Manual Backup
+# -------------------------------------------------------
+
+toor@ip-172-31-10-241:~$ cd ~
+toor@ip-172-31-10-241:~$
+
+toor@ip-172-31-10-241:~$ tar -czvf DocumentsBackup.tar.gz /home/toor/Documents
+home/toor/Documents/
+home/toor/Documents/notes.txt
+home/toor/Documents/credentials_policy.txt
+home/toor/Documents/reports/
+home/toor/Documents/reports/system_audit_report.txt
+
+toor@ip-172-31-10-241:~$ ls -lh DocumentsBackup.tar.gz
+-rw-r--r-- 1 toor toor 1.1K Feb 28 14:12 DocumentsBackup.tar.gz
+
+# -------------------------------------------------------
+# Task 2.2: Scheduled Backup using Cron Jobs
+# -------------------------------------------------------
+
+toor@ip-172-31-10-241:~$ crontab -e
+no crontab for toor - using an empty one
+Select an editor.  To change later, run 'select-editor'.
+  1. /bin/nano        <---- easiest
+  2. /usr/bin/vim.basic
+  3. /usr/bin/vim.tiny
+  4. /bin/ed
+
+Choose 1-4 [1]:
+
+# Added entry in crontab:
+# 0 2 * * * tar -czvf /home/toor/DocumentsBackup_$(date +\%F).tar.gz /home/toor/Documents
+
+crontab: installing new crontab
+
+toor@ip-172-31-10-241:~$ crontab -l
+0 2 * * * tar -czvf /home/toor/DocumentsBackup_$(date +\%F).tar.gz /home/toor/Documents
+
+# -------------------------------------------------------
+# Task 3: Test Restoring the Backup
+# -------------------------------------------------------
+
+toor@ip-172-31-10-241:~$ mkdir -p /home/toor/RestoredDocuments
+toor@ip-172-31-10-241:~$
+
+toor@ip-172-31-10-241:~$ tar -xzvf DocumentsBackup.tar.gz -C /home/toor/RestoredDocuments
+home/toor/Documents/
+home/toor/Documents/notes.txt
+home/toor/Documents/credentials_policy.txt
+home/toor/Documents/reports/
+home/toor/Documents/reports/system_audit_report.txt
+
+toor@ip-172-31-10-241:~$ find /home/toor/RestoredDocuments -type f -maxdepth 4 -print
+/home/toor/RestoredDocuments/home/toor/Documents/notes.txt
+/home/toor/RestoredDocuments/home/toor/Documents/credentials_policy.txt
+/home/toor/RestoredDocuments/home/toor/Documents/reports/system_audit_report.txt
+
+toor@ip-172-31-10-241:~$ diff -r /home/toor/Documents /home/toor/RestoredDocuments/home/toor/Documents
+toor@ip-172-31-10-241:~$
