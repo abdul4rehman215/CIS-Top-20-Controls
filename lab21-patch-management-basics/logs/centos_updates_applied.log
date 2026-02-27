@@ -1,0 +1,4 @@
+(Generated during lab via: sudo yum list updates >> updates_applied.log)
+
+Note: In a real environment this file contains the list of available updates at the time of logging.
+In this lab, the terminal output was captured separately in output.txt and the log file existence/size was verified.
