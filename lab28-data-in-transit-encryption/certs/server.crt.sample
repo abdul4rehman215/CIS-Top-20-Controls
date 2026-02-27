@@ -1,0 +1,8 @@
+(This is a public certificate sample placeholder for documentation.)
+
+The real certificate was generated at:
+- /etc/ssl/certs/server.crt
+
+Note:
+- Self-signed certificates are suitable for lab/testing.
+- For production, use a CA-signed certificate (e.g., Let's Encrypt) and enforce modern TLS settings.
