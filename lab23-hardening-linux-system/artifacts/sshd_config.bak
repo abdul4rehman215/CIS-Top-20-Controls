@@ -1,0 +1,6 @@
+(Backup created during lab)
+Original file copied from: /etc/ssh/sshd_config
+Backup location: /etc/ssh/sshd_config.bak
+
+Note: This repository stores only the existence of the backup as an artifact reference.
+In a real environment, you would keep the full backup content securely, ensuring it contains no secrets.
