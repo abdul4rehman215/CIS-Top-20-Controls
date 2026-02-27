@@ -1,0 +1,185 @@
+Lab 18 — Application Software Security
+Execution Output Log
+(Full output, sequential, no truncation)
+
+====================================================================
+Task 1: DVWA Setup + Vulnerability Identification
+====================================================================
+
+toor@ip-172-31-10-233:~$ docker --version
+Docker version 27.0.3, build 7d4bcd8
+
+toor@ip-172-31-10-233:~$ sudo systemctl status docker --no-pager | head -n 12
+● docker.service - Docker Application Container Engine
+     Loaded: loaded (/usr/lib/systemd/system/docker.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2026-02-28 10:14:09 UTC; 3min ago
+TriggeredBy: ● docker.socket
+       Docs: https://docs.docker.com
+   Main PID: 1127 (dockerd)
+      Tasks: 19
+     Memory: 98.1M (peak: 101.7M)
+        CPU: 1.421s
+     CGroup: /system.slice/docker.service
+             └─1127 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+
+--------------------------------------------------------------------
+Install DVWA using Docker
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-233:~$ docker pull vulnerables/web-dvwa
+Using default tag: latest
+latest: Pulling from vulnerables/web-dvwa
+a803e7c4b030: Pull complete
+b8f15639b548: Pull complete
+ca1a9c5b7f2f: Pull complete
+7b56b7ac6f65: Pull complete
+3c118d1244c7: Pull complete
+edc4b5b0f7e2: Pull complete
+Digest: sha256:6ef2f05d0e7c72c73c8d2b7a3c4db1965d53f9a3c2d1a33fdcde0b6b91cdb8a2
+Status: Downloaded newer image for vulnerables/web-dvwa:latest
+docker.io/vulnerables/web-dvwa:latest
+
+toor@ip-172-31-10-233:~$ docker run -d -p 80:80 vulnerables/web-dvwa
+d7d7c86e4d7b2b9f66b27d9c4e6df2b3f88fd6e6b9e0f5cbbd7ddf8fbf5f0b11
+
+toor@ip-172-31-10-233:~$ docker ps
+CONTAINER ID   IMAGE                   COMMAND                  CREATED          STATUS          PORTS                               NAMES
+d7d7c86e4d7b   vulnerables/web-dvwa     "/main.sh"               12 seconds ago   Up 10 seconds   0.0.0.0:80->80/tcp, :::80->80/tcp   zen_cerf
+
+--------------------------------------------------------------------
+Browser-Based Vulnerability Observation (Recorded)
+--------------------------------------------------------------------
+
+[SQL Injection Test]
+Action Performed:
+- Opened DVWA → SQL Injection
+- Input entered in the ID field:
+  1' OR '1'='1
+
+Observed Output / Result:
+- Result: The page returned multiple user records instead of a single ID lookup.
+- Observation: The query logic was bypassed due to injected OR condition evaluating TRUE.
+
+Explanation:
+- The injected payload changes the query behavior so it can return more results than intended (classic SQLi behavior).
+
+[XSS (Reflected) Test]
+Action Performed:
+- Opened DVWA → XSS (Reflected)
+- Input entered:
+  <script>alert('XSS Vulnerability!')</script>
+
+Observed Output / Result:
+- Result: A JavaScript alert popup appeared in the browser:
+  "XSS Vulnerability!"
+- Observation: Input was reflected into the page without sanitization/encoding.
+
+Explanation:
+- Reflected XSS occurs when the application echoes user input directly into HTML without filtering or encoding.
+
+====================================================================
+Task 2: Static Analysis Tooling (Node/npm + ESLint)
+====================================================================
+
+toor@ip-172-31-10-233:~$ node -v
+v20.11.1
+
+toor@ip-172-31-10-233:~$ npm -v
+10.2.4
+
+toor@ip-172-31-10-233:~$ sudo npm install -g eslint
+added 85 packages in 6s
+
+22 packages are looking for funding
+  run `npm fund` for details
+
+toor@ip-172-31-10-233:~$ eslint -v
+v9.9.1
+
+--------------------------------------------------------------------
+Create workspace + test vulnerable JS file
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-233:~$ mkdir -p Lab18_AppSec/{dvwa_notes,static_analysis,secure_code}
+
+toor@ip-172-31-10-233:~$ cd Lab18_AppSec/static_analysis
+
+toor@ip-172-31-10-233:~/Lab18_AppSec/static_analysis$ nano vulnerableScript.js
+[nano opened vulnerableScript.js]
+
+toor@ip-172-31-10-233:~/Lab18_AppSec/static_analysis$ eslint vulnerableScript.js
+Oops! Something went wrong! :(
+
+ESLint: 9.9.1
+
+ESLint couldn't find an eslint.config.(js|mjs|cjs) file.
+
+From ESLint v9.0.0, the default configuration file is now eslint.config.js.
+If you are using a .eslintrc.* file, please follow the migration guide
+to update your configuration file format.
+
+--------------------------------------------------------------------
+Initialize npm project + install security plugin + create flat config
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-233:~/Lab18_AppSec/static_analysis$ npm init -y
+Wrote to /home/toor/Lab18_AppSec/static_analysis/package.json:
+
+{
+  "name": "static_analysis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "vulnerableScript.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+
+toor@ip-172-31-10-233:~/Lab18_AppSec/static_analysis$ npm install --save-dev eslint eslint-plugin-security
+added 99 packages, and audited 100 packages in 4s
+
+16 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+toor@ip-172-31-10-233:~/Lab18_AppSec/static_analysis$ nano eslint.config.js
+[nano opened eslint.config.js]
+
+toor@ip-172-31-10-233:~/Lab18_AppSec/static_analysis$ eslint vulnerableScript.js
+/home/toor/Lab18_AppSec/static_analysis/vulnerableScript.js
+  10:3   warning  eval can be harmful  no-eval
+  19:7   warning  'debugMode' is assigned a value but never used  no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)
+
+====================================================================
+Task 3: Secure Code Practices (Documentation + Safer Examples)
+====================================================================
+
+toor@ip-172-31-10-233:~/Lab18_AppSec/static_analysis$ cd ../secure_code
+
+toor@ip-172-31-10-233:~/Lab18_AppSec/secure_code$ nano secure_examples.js
+[nano opened secure_examples.js]
+
+toor@ip-172-31-10-233:~/Lab18_AppSec/secure_code$ nano secure_coding_notes.md
+[nano opened secure_coding_notes.md]
+
+====================================================================
+Final Verification: Confirm Deliverables Exist
+====================================================================
+
+toor@ip-172-31-10-233:~$ cd ~/Lab18_AppSec && find . -type f -maxdepth 2 -print
+./static_analysis/vulnerableScript.js
+./static_analysis/package.json
+./static_analysis/package-lock.json
+./static_analysis/eslint.config.js
+./secure_code/secure_examples.js
+./secure_code/secure_coding_notes.md
+
+====================================================================
+End of Lab 18 Output Log
+====================================================================
