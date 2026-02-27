@@ -1,0 +1,161 @@
+Lab 25 — Secure Cloud Instance (Basic)
+Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: Outputs below are sample/simulated from an authorized OpenStack-based training cloud.
+
+Cloud Platform (Lab): OpenStack (CLI + Console)
+Instance OS: Ubuntu 24.04 LTS (example)
+User: toor
+
+====================================================================
+Task 1: Launch a Small Cloud VM (Console + CLI Verification)
+====================================================================
+
+--------------------------------------------------------------------
+Console Actions (Documented)
+--------------------------------------------------------------------
+
+Console Login: Successful
+Project: training-project
+Region: RegionOne
+
+Image selected: Ubuntu 24.04 LTS (Noble)
+Flavor selected: m1.small (1 vCPU, 2GB RAM, 20GB disk) [example]
+
+Instance Name: secure-lab25-ubuntu
+AZ: nova
+Network: private-net
+Keypair: toor-key
+
+Launch Status: SUCCESS
+Instance State: ACTIVE
+Assigned Private IP: 10.0.0.25
+
+--------------------------------------------------------------------
+CLI verification: openstack server list
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-201:~$ openstack server list
++--------------------------------------+----------------------+--------+-------------------------+------------------+----------+
+| ID                                   | Name                 | Status | Networks                | Image            | Flavor   |
++--------------------------------------+----------------------+--------+-------------------------+------------------+----------+
+| 6f3b5b7e-9d0a-4c31-9bfa-8d5b0c1a1c55 | secure-lab25-ubuntu   | ACTIVE | private-net=10.0.0.25   | Ubuntu 24.04 LTS | m1.small |
++--------------------------------------+----------------------+--------+-------------------------+------------------+----------+
+
+====================================================================
+Task 2: Limit Inbound Ports to 22/80/443 (Security Groups)
+====================================================================
+
+--------------------------------------------------------------------
+Find security group ID
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-201:~$ openstack security group list
++--------------------------------------+--------------------+----------------------------------+----------------------------------+
+| ID                                   | Name               | Description                      | Project                          |
++--------------------------------------+--------------------+----------------------------------+----------------------------------+
+| 2d4a6f91-1b0d-4f6d-9f2a-3b6a7a0c9d11 | default            | Default security group           | training-project                 |
+| 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33 | sg-secure-lab25    | Allow 22/80/443 only (Lab 25)    | training-project                 |
++--------------------------------------+--------------------+----------------------------------+----------------------------------+
+
+Security group ID used: 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33
+
+--------------------------------------------------------------------
+Review current security group rules
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-201:~$ openstack security group rule list 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33
++--------------------------------------+-------------+-----------+-----------+------------+------------------+
+| ID                                   | IP Protocol | IP Range  | Port Range| Direction  | Remote Security  |
++--------------------------------------+-------------+-----------+-----------+------------+------------------+
+| 3a5d1c0f-11aa-4f5a-9a11-5b2c9a00d201 | tcp         | 0.0.0.0/0 | 1:65535    | ingress    | None             |
+| 7b2a1d9e-22bb-4e6c-8b22-6c3d0b11e302 | None        | 0.0.0.0/0 |           | egress     | None             |
++--------------------------------------+-------------+-----------+-----------+------------+------------------+
+
+[Finding]
+Ingress rule 1:65535 is too open and must be removed.
+
+--------------------------------------------------------------------
+Remove overly permissive ingress rule
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-201:~$ openstack security group rule delete 3a5d1c0f-11aa-4f5a-9a11-5b2c9a00d201
+
+--------------------------------------------------------------------
+Add required inbound rules (22/80/443)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-201:~$ openstack security group rule create --protocol tcp --dst-port 22:22 --remote-ip 0.0.0.0/0 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33
++-------------------+--------------------------------------+
+| Field             | Value                                |
++-------------------+--------------------------------------+
+| id                | a1b2c3d4-1111-4a4a-9b9b-aaaa00001111   |
+| security_group_id | 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33   |
+| direction         | ingress                               |
+| protocol          | tcp                                   |
+| port_range_min    | 22                                    |
+| port_range_max    | 22                                    |
+| remote_ip_prefix  | 0.0.0.0/0                             |
++-------------------+--------------------------------------+
+
+toor@ip-172-31-10-201:~$ openstack security group rule create --protocol tcp --dst-port 80:80 --remote-ip 0.0.0.0/0 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33
++-------------------+--------------------------------------+
+| Field             | Value                                |
++-------------------+--------------------------------------+
+| id                | a1b2c3d4-2222-4b4b-8c8c-bbbb00002222   |
+| security_group_id | 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33   |
+| direction         | ingress                               |
+| protocol          | tcp                                   |
+| port_range_min    | 80                                    |
+| port_range_max    | 80                                    |
+| remote_ip_prefix  | 0.0.0.0/0                             |
++-------------------+--------------------------------------+
+
+toor@ip-172-31-10-201:~$ openstack security group rule create --protocol tcp --dst-port 443:443 --remote-ip 0.0.0.0/0 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33
++-------------------+--------------------------------------+
+| Field             | Value                                |
++-------------------+--------------------------------------+
+| id                | a1b2c3d4-3333-4c4c-7d7d-cccc00003333   |
+| security_group_id | 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33   |
+| direction         | ingress                               |
+| protocol          | tcp                                   |
+| port_range_min    | 443                                   |
+| port_range_max    | 443                                   |
+| remote_ip_prefix  | 0.0.0.0/0                             |
++-------------------+--------------------------------------+
+
+--------------------------------------------------------------------
+Verify final security group rules
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-201:~$ openstack security group rule list 91b5f6d2-1e22-4cc3-8df0-4b9d0a8c7f33
++--------------------------------------+-------------+-----------+-----------+------------+------------------+
+| ID                                   | IP Protocol | IP Range  | Port Range| Direction  | Remote Security  |
++--------------------------------------+-------------+-----------+-----------+------------+------------------+
+| a1b2c3d4-1111-4a4a-9b9b-aaaa00001111 | tcp         | 0.0.0.0/0 | 22:22     | ingress    | None             |
+| a1b2c3d4-2222-4b4b-8c8c-bbbb00002222 | tcp         | 0.0.0.0/0 | 80:80     | ingress    | None             |
+| a1b2c3d4-3333-4c4c-7d7d-cccc00003333 | tcp         | 0.0.0.0/0 | 443:443   | ingress    | None             |
+| 7b2a1d9e-22bb-4e6c-8b22-6c3d0b11e302 | None        | 0.0.0.0/0 |           | egress     | None             |
++--------------------------------------+-------------+-----------+-----------+------------+------------------+
+
+====================================================================
+Task 3: Enable MFA for Cloud Console Login (Console Documentation)
+====================================================================
+
+MFA Status: Enabled
+Authenticator App: Google Authenticator
+Backup codes: Generated and stored securely (offline)
+Test Login: Successful (password + OTP required)
+
+====================================================================
+Task 4: Documentation File Creation (Markdown)
+====================================================================
+
+toor@ip-172-31-10-201:~$ mkdir -p Lab25_Secure_Cloud_Instance && cd Lab25_Secure_Cloud_Instance
+
+toor@ip-172-31-10-201:~/Lab25_Secure_Cloud_Instance$ nano security_group_rules.md
+[nano opened security_group_rules.md]
+
+====================================================================
+End of Lab 25 Output Log
+====================================================================
