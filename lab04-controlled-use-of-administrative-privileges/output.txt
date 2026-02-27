@@ -1,0 +1,71 @@
+# Lab 04: Controlled Use of Administrative Privileges (CIS Control 4)
+# Execution Output Log (Sequential)
+
+# ----------------------------------------
+# Task 1: List Accounts with Admin Privileges
+# ----------------------------------------
+
+toor@ip-172-31-10-162:~$ cat /etc/group | grep sudo
+sudo:x:27:toor,intern1,secops
+
+toor@ip-172-31-10-162:~$ cat /etc/group | grep wheel
+toor@ip-172-31-10-162:~$
+
+toor@ip-172-31-10-162:~$ sudo visudo
+# visudo opened /etc/sudoers safely in the default editor.
+# No syntax errors detected on exit.
+
+# Relevant lines observed in /etc/sudoers (view-only notes from inside visudo):
+# Defaults        env_reset
+# Defaults        mail_badpass
+# Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+#
+# Allow members of group sudo to execute any command
+# %sudo   ALL=(ALL:ALL) ALL
+
+# ----------------------------------------
+# Task 2: Remove or Downgrade Unnecessary Admin Accounts
+# ----------------------------------------
+
+toor@ip-172-31-10-162:~$ sudo deluser intern1 sudo
+Removing user `intern1' from group `sudo' ...
+Done.
+
+toor@ip-172-31-10-162:~$ cat /etc/group | grep sudo
+sudo:x:27:toor,secops
+
+toor@ip-172-31-10-162:~$ id intern1
+uid=1002(intern1) gid=1002(intern1) groups=1002(intern1)
+
+toor@ip-172-31-10-162:~$ id tempadmin
+uid=1003(tempadmin) gid=1003(tempadmin) groups=1003(tempadmin),27(sudo)
+
+toor@ip-172-31-10-162:~$ sudo userdel tempadmin
+toor@ip-172-31-10-162:~$
+
+toor@ip-172-31-10-162:~$ id tempadmin
+id: ‘tempadmin’: no such user
+
+toor@ip-172-31-10-162:~$ cat /etc/group | grep sudo
+sudo:x:27:toor,secops
+
+# ----------------------------------------
+# Task 3: Document Changes and Verify Stability
+# ----------------------------------------
+
+toor@ip-172-31-10-162:~$ mkdir -p Lab4_Admin_Privilege_Control
+toor@ip-172-31-10-162:~$
+
+toor@ip-172-31-10-162:~$ cd Lab4_Admin_Privilege_Control
+toor@ip-172-31-10-162:~/Lab4_Admin_Privilege_Control$
+
+# (Created change_log.txt using nano and saved)
+
+toor@ip-172-31-10-162:~/Lab4_Admin_Privilege_Control$ sudo tail /var/log/auth.log
+Feb 28 11:36:10 ip-172-31-10-162 sudo:     toor : TTY=pts/0 ; PWD=/home/toor ; USER=root ; COMMAND=/usr/sbin/visudo
+Feb 28 11:37:44 ip-172-31-10-162 sudo:     toor : TTY=pts/0 ; PWD=/home/toor ; USER=root ; COMMAND=/usr/sbin/deluser intern1 sudo
+Feb 28 11:39:02 ip-172-31-10-162 sudo:     toor : TTY=pts/0 ; PWD=/home/toor ; USER=root ; COMMAND=/usr/sbin/userdel tempadmin
+Feb 28 11:41:19 ip-172-31-10-162 sudo:     toor : TTY=pts/0 ; PWD=/home/toor/Lab4_Admin_Privilege_Control ; USER=root ; COMMAND=/usr/bin/tail /var/log/auth.log
+
+toor@ip-172-31-10-162:~/Lab4_Admin_Privilege_Control$ sudo -v
+toor@ip-172-31-10-162:~/Lab4_Admin_Privilege_Control$
