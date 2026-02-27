@@ -1,0 +1,95 @@
+# Lab 07: Securing Email & Web Browsers (CIS Control 7)
+# Execution Output Log (Sequential)
+
+# -------------------------------------------------------
+# Task 1: Enable Phishing Filters in an Email Client
+# -------------------------------------------------------
+
+toor@ip-172-31-10-198:~$ sudo apt-get install thunderbird -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  thunderbird-locale-en hunspell-en-us libotr5
+Suggested packages:
+  enigmail aspell
+The following NEW packages will be installed:
+  thunderbird thunderbird-locale-en hunspell-en-us libotr5
+0 upgraded, 4 newly installed, 0 to remove and 0 not upgraded.
+Need to get 92.6 MB of archives.
+After this operation, 319 MB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 thunderbird amd64 1:115.8.0+build1-0ubuntu0.24.04.1 [90.1 MB]
+Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 thunderbird-locale-en all 1:115.8.0+build1-0ubuntu0.24.04.1 [1,742 kB]
+Get:3 http://archive.ubuntu.com/ubuntu noble/main amd64 hunspell-en-us all 1:2020.12.07-2 [286 kB]
+Get:4 http://archive.ubuntu.com/ubuntu noble/main amd64 libotr5 amd64 4.1.1-6 [352 kB]
+Fetched 92.6 MB in 9s (10.4 MB/s)
+Selecting previously unselected package libotr5:amd64.
+(Reading database ... 83502 files and directories currently installed.)
+Preparing to unpack .../libotr5_4.1.1-6_amd64.deb ...
+Unpacking libotr5:amd64 (4.1.1-6) ...
+Selecting previously unselected package hunspell-en-us.
+Preparing to unpack .../hunspell-en-us_1%3a2020.12.07-2_all.deb ...
+Unpacking hunspell-en-us (1:2020.12.07-2) ...
+Selecting previously unselected package thunderbird.
+Preparing to unpack .../thunderbird_1%3a115.8.0+build1-0ubuntu0.24.04.1_amd64.deb ...
+Unpacking thunderbird (1:115.8.0+build1-0ubuntu0.24.04.1) ...
+Selecting previously unselected package thunderbird-locale-en.
+Preparing to unpack .../thunderbird-locale-en_1%3a115.8.0+build1-0ubuntu0.24.04.1_all.deb ...
+Unpacking thunderbird-locale-en (1:115.8.0+build1-0ubuntu0.24.04.1) ...
+Setting up libotr5:amd64 (4.1.1-6) ...
+Setting up hunspell-en-us (1:2020.12.07-2) ...
+Setting up thunderbird (1:115.8.0+build1-0ubuntu0.24.04.1) ...
+Setting up thunderbird-locale-en (1:115.8.0+build1-0ubuntu0.24.04.1) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.3) ...
+Processing triggers for desktop-file-utils (0.27-2build1) ...
+Processing triggers for mailcap (3.70+nmu1ubuntu1) ...
+Processing triggers for gnome-menus (3.36.0-1.1ubuntu3) ...
+
+toor@ip-172-31-10-198:~$ thunderbird --version
+Mozilla Thunderbird 115.8.0
+
+# Thunderbird GUI configuration (documented):
+# - Tools > Account Settings > Junk Settings
+# - Enabled "Enable adaptive junk mail controls for this account"
+# - Enabled "Trust junk mail headers set by"
+# Observed: Junk/Phishing filtering enabled for the selected account.
+# Test result: Safe phishing-like test email was flagged as Junk and warning banner displayed.
+
+# -------------------------------------------------------
+# Task 2: Install or Activate Browser Security Plugin
+# -------------------------------------------------------
+
+toor@ip-172-31-10-198:~$ sudo apt-get install firefox -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+firefox is already the newest version (1:122.0+build2-0ubuntu0.24.04.1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+toor@ip-172-31-10-198:~$ firefox --version
+Mozilla Firefox 122.0
+
+# Firefox Add-ons installation (documented):
+# - Menu (☰) > Add-ons and themes
+# - Installed: NoScript (script blocker)
+# - Installed: uBlock Origin (ads/trackers/pop-up blocker)
+# Testing performed on a high-ad page:
+# - uBlock Origin blocked requests increased on load
+# - NoScript blocked scripts until explicitly allowed
+# - Pop-ups did not appear
+
+# -------------------------------------------------------
+# Task 3: Document Unsafe Default Browser Settings Changed
+# -------------------------------------------------------
+
+toor@ip-172-31-10-198:~$ mkdir -p Lab7_Email_Browser_Security
+toor@ip-172-31-10-198:~$
+
+toor@ip-172-31-10-198:~$ cd Lab7_Email_Browser_Security
+toor@ip-172-31-10-198:~/Lab7_Email_Browser_Security$
+
+# (Created browser_email_security_checklist.md using nano and saved)
+
+toor@ip-172-31-10-198:~/Lab7_Email_Browser_Security$ ls -l
+total 4
+-rw-r--r-- 1 toor toor 1017 Feb 28 13:02 browser_email_security_checklist.md
