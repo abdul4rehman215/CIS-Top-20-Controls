@@ -1,0 +1,7 @@
+2026-02-28 12:48:31 Found 6 warnings
+2026-02-28 12:48:31 Found 12 suggestions
+2026-02-28 12:48:31 Hardening index: 72
+2026-02-28 12:48:31 Suggestion: Enable firewall (ufw) and allow only required ports
+2026-02-28 12:48:31 Suggestion: Disable PasswordAuthentication after key-based auth is confirmed
+2026-02-28 12:48:31 Suggestion: Apply pending security updates
+2026-02-28 12:48:31 Suggestion: Review sysctl kernel hardening settings
