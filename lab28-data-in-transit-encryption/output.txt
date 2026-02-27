@@ -1,0 +1,216 @@
+Lab 28 — Data in Transit Encryption (Nginx HTTPS + HTTP→HTTPS Redirect)
+Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: Outputs below are sample/simulated from an authorized lab environment and formatted like a real lab run for GitHub documentation.
+
+Environment: Ubuntu 24.04.1 LTS (Cloud Lab Environment)
+User: toor
+Web Server Used (Lab): Nginx (HTTPS + HTTP→HTTPS redirect)
+Domain used (lab): yourdomain.com (mapped locally for testing)
+
+====================================================================
+Task 1: Enabling TLS/SSL on a Local Web Server (Nginx)
+====================================================================
+
+--------------------------------------------------------------------
+Install required packages
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ sudo apt-get update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+10 packages can be upgraded. Run 'apt list --upgradable' to see them.
+
+toor@ip-172-31-10-154:~$ sudo apt-get install nginx -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  nginx-common nginx-core
+Suggested packages:
+  fcgiwrap nginx-doc
+The following NEW packages will be installed:
+  nginx nginx-common nginx-core
+0 upgraded, 3 newly installed, 0 to remove and 10 not upgraded.
+Need to get 622 kB of archives.
+After this operation, 2,106 kB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu noble/main amd64 nginx-common all 1.24.0-2ubuntu7.3 [36.8 kB]
+Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 nginx-core amd64 1.24.0-2ubuntu7.3 [560 kB]
+Get:3 http://archive.ubuntu.com/ubuntu noble/main amd64 nginx all 1.24.0-2ubuntu7.3 [25.3 kB]
+Fetched 622 kB in 1s (679 kB/s)
+Selecting previously unselected package nginx-common.
+(Reading database ... 121040 files and directories currently installed.)
+Preparing to unpack .../nginx-common_1.24.0-2ubuntu7.3_all.deb ...
+Unpacking nginx-common (1.24.0-2ubuntu7.3) ...
+Selecting previously unselected package nginx-core.
+Preparing to unpack .../nginx-core_1.24.0-2ubuntu7.3_amd64.deb ...
+Unpacking nginx-core (1.24.0-2ubuntu7.3) ...
+Selecting previously unselected package nginx.
+Preparing to unpack .../nginx_1.24.0-2ubuntu7.3_all.deb ...
+Unpacking nginx (1.24.0-2ubuntu7.3) ...
+Setting up nginx-common (1.24.0-2ubuntu7.3) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service → /usr/lib/systemd/system/nginx.service.
+Setting up nginx-core (1.24.0-2ubuntu7.3) ...
+Setting up nginx (1.24.0-2ubuntu7.3) ...
+Processing triggers for man-db (2.12.0-4) ...
+
+--------------------------------------------------------------------
+Generate self-signed certificate (OpenSSL)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+> -keyout /etc/ssl/private/server.key -out /etc/ssl/certs/server.crt
+Generating a RSA private key
+................................................................+++++
+.............................................................+++++
+writing new private key to '/etc/ssl/private/server.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]: IN
+State or Province Name (full name) [Some-State]: Maharashtra
+Locality Name (eg, city) []: Mumbai
+Organization Name (eg, company) [Internet Widgits Pty Ltd]: LabSecurity
+Organizational Unit Name (eg, section) []: DevSecOps
+Common Name (e.g. server FQDN or YOUR name) []: yourdomain.com
+Email Address []: admin@yourdomain.com
+
+--------------------------------------------------------------------
+Verify cert & key exist and permissions
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ sudo ls -l /etc/ssl/private/server.key /etc/ssl/certs/server.crt
+-rw-r--r-- 1 root root 1354 Feb 28 2026 /etc/ssl/certs/server.crt
+-rw------- 1 root root 1704 Feb 28 2026 /etc/ssl/private/server.key
+
+--------------------------------------------------------------------
+Configure Nginx for HTTPS (site config)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ sudo nano /etc/nginx/sites-available/yourdomain.com
+[nano opened /etc/nginx/sites-available/yourdomain.com]
+
+[Initial HTTPS server block added]
+server {
+ listen 443 ssl;
+ server_name yourdomain.com;
+ ssl_certificate /etc/ssl/certs/server.crt;
+ ssl_certificate_key /etc/ssl/private/server.key;
+ location / {
+ root /var/www/html;
+ index index.html index.htm;
+ }
+}
+
+--------------------------------------------------------------------
+Enable site and test configuration
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ sudo ln -s /etc/nginx/sites-available/yourdomain.com /etc/nginx/sites-enabled/yourdomain.com
+
+toor@ip-172-31-10-154:~$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+toor@ip-172-31-10-154:~$ sudo systemctl restart nginx
+
+toor@ip-172-31-10-154:~$ sudo systemctl status nginx --no-pager | head -n 14
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2026-02-28 16:44:18 UTC; 6s ago
+       Docs: man:nginx(8)
+   Main PID: 3412 (nginx)
+      Tasks: 2 (limit: 2252)
+     Memory: 6.8M
+        CPU: 33ms
+     CGroup: /system.slice/nginx.service
+             ├─3412 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"
+             └─3413 "nginx: worker process"
+
+====================================================================
+Task 2: Confirm HTTPS is Functional and HTTP is Disabled
+====================================================================
+
+--------------------------------------------------------------------
+Verify HTTPS access (curl)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ curl -k -I https://yourdomain.com
+HTTP/1.1 200 OK
+Server: nginx/1.24.0 (Ubuntu)
+Date: Sat, 28 Feb 2026 16:45:10 GMT
+Content-Type: text/html
+Content-Length: 615
+Last-Modified: Sat, 28 Feb 2026 15:02:11 GMT
+Connection: keep-alive
+ETag: "65dfb123-267"
+Accept-Ranges: bytes
+
+--------------------------------------------------------------------
+Configure HTTP → HTTPS redirect
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ sudo nano /etc/nginx/sites-available/yourdomain.com
+[nano opened /etc/nginx/sites-available/yourdomain.com]
+
+[Added redirect server block above HTTPS block]
+server {
+ listen 80;
+ server_name yourdomain.com;
+ return 301 https://$server_name$request_uri;
+}
+
+server {
+ listen 443 ssl;
+ server_name yourdomain.com;
+ ssl_certificate /etc/ssl/certs/server.crt;
+ ssl_certificate_key /etc/ssl/private/server.key;
+ location / {
+ root /var/www/html;
+ index index.html index.htm;
+ }
+}
+
+--------------------------------------------------------------------
+Test and reload Nginx
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+toor@ip-172-31-10-154:~$ sudo systemctl reload nginx
+
+--------------------------------------------------------------------
+Verify HTTP redirects to HTTPS
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ curl -I http://yourdomain.com
+HTTP/1.1 301 Moved Permanently
+Server: nginx/1.24.0 (Ubuntu)
+Date: Sat, 28 Feb 2026 16:48:02 GMT
+Content-Type: text/html
+Content-Length: 178
+Connection: keep-alive
+Location: https://yourdomain.com/
+
+--------------------------------------------------------------------
+Confirm listening ports (80 and 443)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-154:~$ sudo ss -tulpen | grep -E ':80|:443'
+tcp   LISTEN 0      511          0.0.0.0:80        0.0.0.0:*    users:(("nginx",pid=3412,fd=6)) ino:123456 sk:1
+tcp   LISTEN 0      511          0.0.0.0:443       0.0.0.0:*    users:(("nginx",pid=3412,fd=7)) ino:123457 sk:2
+
+====================================================================
+End of Lab 28 Output Log
+====================================================================
