@@ -1,0 +1,13 @@
+# Filebeat configuration (Lab 24)
+# Minimal configuration used for SIEM log shipping lab.
+
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/*.log
+
+output.elasticsearch:
+  hosts: ["localhost:9200"]
+  username: "elastic"
+  password: "changeme"
