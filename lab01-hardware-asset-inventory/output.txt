@@ -1,0 +1,132 @@
+# Lab 01: Hardware Asset Inventory (CIS Control 1)
+# Execution Output Log (Sequential)
+
+# ----------------------------------------
+# Task 1: Create Inventory Files
+# ----------------------------------------
+
+toor@ip-172-31-10-121:~$ mkdir -p Hardware_Asset_Inventory
+toor@ip-172-31-10-121:~$
+
+toor@ip-172-31-10-121:~$ cd Hardware_Asset_Inventory
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$
+
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$ pwd
+/home/toor/Hardware_Asset_Inventory
+
+# (Created hardware_inventory.txt using nano and saved)
+
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$ ls -l
+total 4
+-rw-r--r-- 1 toor toor 1047 Aug 18 10:21 hardware_inventory.txt
+
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$ head -n 15 hardware_inventory.txt
+Hardware Asset Inventory - Initial List
+======================================
+
+Asset ID  Asset Type      Model/Description              Serial Number     Location         Owner/Responsible Party
+--------  -------------   ------------------------------  ---------------   --------------   ------------------------
+PC001     Desktop PC      Dell OptiPlex 7090              DOPT7090-1A3F      Office-1         John Doe (IT Department)
+LT001     Laptop          HP ProBook 450 G8               HPPB450-91C2       Office-2         Sarah Khan (HR)
+LT002     Laptop          Lenovo ThinkPad T14 Gen 2       LNT14G2-55B8       Remote           Abdul Rehman (Security)
+NW001     Router          TP-Link Archer C6 (Gateway)     TPLARC6-7D11       Server Room      John Doe (IT Department)
+NW002     Switch          Cisco SG110-16 (16-port)        CSG110-3F9A        Server Room      John Doe (IT Department)
+
+# ----------------------------------------
+# Task 2: Install + Use nmap
+# ----------------------------------------
+
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$ nmap --version
+bash: nmap: command not found
+
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$ sudo apt update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$ sudo apt install nmap -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  liblinear4 libpcre3 lua-lpeg nmap-common
+Suggested packages:
+  zenmap
+The following NEW packages will be installed:
+  liblinear4 libpcre3 lua-lpeg nmap nmap-common
+0 upgraded, 5 newly installed, 0 to remove and 0 not upgraded.
+Need to get 6,412 kB of archives.
+After this operation, 27.0 MB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu noble/main amd64 nmap-common all 7.94+dfsg-1build2 [4,132 kB]
+Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 liblinear4 amd64 2.3.0+dfsg-2 [41.4 kB]
+Get:3 http://archive.ubuntu.com/ubuntu noble/main amd64 libpcre3 amd64 2:8.39-15build1 [341 kB]
+Get:4 http://archive.ubuntu.com/ubuntu noble/main amd64 lua-lpeg amd64 1.1.0-3build1 [32.0 kB]
+Get:5 http://archive.ubuntu.com/ubuntu noble/main amd64 nmap amd64 7.94+dfsg-1build2 [1,866 kB]
+Fetched 6,412 kB in 2s (3,144 kB/s)
+Selecting previously unselected package nmap-common.
+(Reading database ... 83210 files and directories currently installed.)
+Preparing to unpack .../nmap-common_7.94+dfsg-1build2_all.deb ...
+Unpacking nmap-common (7.94+dfsg-1build2) ...
+Selecting previously unselected package liblinear4:amd64.
+Preparing to unpack .../liblinear4_2.3.0+dfsg-2_amd64.deb ...
+Unpacking liblinear4:amd64 (2.3.0+dfsg-2) ...
+Selecting previously unselected package libpcre3:amd64.
+Preparing to unpack .../libpcre3_2%3a8.39-15build1_amd64.deb ...
+Unpacking libpcre3:amd64 (2:8.39-15build1) ...
+Selecting previously unselected package lua-lpeg:amd64.
+Preparing to unpack .../lua-lpeg_1.1.0-3build1_amd64.deb ...
+Unpacking lua-lpeg:amd64 (1.1.0-3build1) ...
+Selecting previously unselected package nmap.
+Preparing to unpack .../nmap_7.94+dfsg-1build2_amd64.deb ...
+Unpacking nmap (7.94+dfsg-1build2) ...
+Setting up nmap-common (7.94+dfsg-1build2) ...
+Setting up liblinear4:amd64 (2.3.0+dfsg-2) ...
+Setting up libpcre3:amd64 (2:8.39-15build1) ...
+Setting up lua-lpeg:amd64 (1.1.0-3build1) ...
+Setting up nmap (7.94+dfsg-1build2) ...
+Processing triggers for man-db (2.12.0-4) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.3) ...
+
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$ ip a show ens5
+2: ens5: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc fq_codel state UP group default qlen 1000
+    link/ether 0a:2f:91:4b:77:1c brd ff:ff:ff:ff:ff:ff
+    inet 172.31.10.121/20 brd 172.31.15.255 scope global dynamic ens5
+       valid_lft 3227sec preferred_lft 3227sec
+    inet6 fe80::82f:91ff:fe4b:771c/64 scope link
+       valid_lft forever preferred_lft forever
+
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$ nmap -sP 172.31.10.0/24
+Starting Nmap 7.94 ( https://nmap.org ) at 2026-02-28 10:28 UTC
+Nmap scan report for ip-172-31-10-1.ec2.internal (172.31.10.1)
+Host is up (0.0020s latency).
+MAC Address: 0A:11:22:33:44:55 (Unknown)
+
+Nmap scan report for ip-172-31-10-25.ec2.internal (172.31.10.25)
+Host is up (0.0018s latency).
+MAC Address: 0A:9C:13:AA:5F:10 (Unknown)
+
+Nmap scan report for ip-172-31-10-47.ec2.internal (172.31.10.47)
+Host is up (0.0025s latency).
+MAC Address: 0A:3B:7E:0D:21:9A (Unknown)
+
+Nmap scan report for ip-172-31-10-88.ec2.internal (172.31.10.88)
+Host is up (0.0016s latency).
+MAC Address: 0A:0E:8A:91:2C:7B (Unknown)
+
+Nmap scan report for ip-172-31-10-121.ec2.internal (172.31.10.121)
+Host is up (0.00029s latency).
+MAC Address: 0A:2F:91:4B:77:1C (Unknown)
+
+Nmap done: 256 IP addresses (5 hosts up) scanned in 3.78 seconds
+
+# (Created scan_validation_notes.txt using nano and saved)
+
+toor@ip-172-31-10-121:~/Hardware_Asset_Inventory$ ls -l
+total 8
+-rw-r--r-- 1 toor toor 1047 Aug 18 10:21 hardware_inventory.txt
+-rw-r--r-- 1 toor toor  972 Aug 18 10:32 scan_validation_notes.txt
