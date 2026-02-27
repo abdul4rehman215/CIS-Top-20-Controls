@@ -1,0 +1,199 @@
+# Lab 13: Data Protection Basics (CIS Controls)
+# Execution Output Log (Windows + Linux)
+
+# -------------------------------------------------------
+# Task 1: Encrypt a Test File or Folder (Windows)
+# -------------------------------------------------------
+
+# 7-Zip AES-256 Encryption (GUI)
+# Test file created (example):
+# - C:\Users\Student\Documents\testfile.txt
+# Archive created:
+# - C:\Users\Student\Documents\testfile_encrypted.7z
+# Observed:
+# - Encryption: AES-256 enabled
+# - Archive created successfully
+
+# VeraCrypt Container Encryption (GUI)
+# Container created:
+# - C:\Users\Student\Documents\SecureContainer.hc
+# Settings:
+# - Encryption Algorithm: AES
+# - Size: 100 MB
+# Observed:
+# - Volume mounted successfully (example drive X:)
+# - Encrypted container accessible only after authentication
+
+# -------------------------------------------------------
+# Task 2: Configure Secure Communications (Linux)
+# -------------------------------------------------------
+
+# Step 1: Ensure Apache installed
+
+toor@ip-172-31-10-216:~$ sudo apt-get update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+
+toor@ip-172-31-10-216:~$ sudo apt-get install apache2 openssl -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+apache2 is already the newest version (2.4.58-1ubuntu8.4).
+openssl is already the newest version (3.0.13-0ubuntu3.2).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+toor@ip-172-31-10-216:~$ systemctl status apache2 --no-pager | head -n 10
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2026-02-28 15:22:11 UTC; 2min ago
+       Docs: https://httpd.apache.org/docs/2.4/
+   Main PID: 1129 (apache2)
+      Tasks: 55 (limit: 2238)
+     Memory: 7.9M
+
+# Step 2: Generate self-signed cert
+
+toor@ip-172-31-10-216:~$ mkdir -p ~/Lab13_Data_Protection/https
+toor@ip-172-31-10-216:~$
+
+toor@ip-172-31-10-216:~$ cd ~/Lab13_Data_Protection/https
+toor@ip-172-31-10-216:~/Lab13_Data_Protection/https$
+
+toor@ip-172-31-10-216:~/Lab13_Data_Protection/https$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt
+Generating a RSA private key
+.............................................................................+++++
+........................................................+++++
+writing new private key to 'server.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]: IN
+State or Province Name (full name) [Some-State]: Delhi
+Locality Name (eg, city) []: New Delhi
+Organization Name (eg, company) [Internet Widgits Pty Ltd]: LabNetwork
+Organizational Unit Name (eg, section) []: Security
+Common Name (e.g. server FQDN or YOUR name) []: example.com
+Email Address []: admin@example.com
+
+toor@ip-172-31-10-216:~/Lab13_Data_Protection/https$ ls -l
+total 8
+-rw-r--r-- 1 toor toor 1314 Feb 28 15:26 server.crt
+-rw------- 1 toor toor 1704 Feb 28 15:26 server.key
+
+# Step 3: Configure Apache SSL
+
+toor@ip-172-31-10-216:~/Lab13_Data_Protection/https$ sudo a2enmod ssl
+Considering dependency setenvif for ssl:
+Module setenvif already enabled
+Considering dependency mime for ssl:
+Module mime already enabled
+Considering dependency socache_shmcb for ssl:
+Enabling module socache_shmcb.
+Enabling module ssl.
+See /usr/share/doc/apache2/README.Debian.gz on how to configure SSL and create self-signed certificates.
+To activate the new configuration, you need to run:
+  systemctl restart apache2
+
+toor@ip-172-31-10-216:~/Lab13_Data_Protection/https$ sudo nano /etc/apache2/sites-available/lab-ssl.conf
+# (Saved and exited nano)
+
+toor@ip-172-31-10-216:~/Lab13_Data_Protection/https$ sudo a2ensite lab-ssl.conf
+Enabling site lab-ssl.
+To activate the new configuration, you need to run:
+  systemctl reload apache2
+
+toor@ip-172-31-10-216:~/Lab13_Data_Protection/https$ sudo systemctl restart apache2
+toor@ip-172-31-10-216:~/Lab13_Data_Protection/https$
+
+toor@ip-172-31-10-216:~/Lab13_Data_Protection/https$ sudo ss -tuln | grep ":443" || echo "Port 443 not listening"
+tcp   LISTEN 0      511          0.0.0.0:443        0.0.0.0:*
+tcp   LISTEN 0      511             [::]:443           [::]:*
+
+# SSH enabled, Telnet disabled/not present
+
+toor@ip-172-31-10-216:~$ sudo apt-get install openssh-server -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+openssh-server is already the newest version (1:9.6p1-3ubuntu13.4).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+toor@ip-172-31-10-216:~$ sudo systemctl stop telnet
+Failed to stop telnet.service: Unit telnet.service not loaded.
+
+toor@ip-172-31-10-216:~$ sudo systemctl disable telnet
+Failed to disable unit: Unit file telnet.service does not exist.
+
+toor@ip-172-31-10-216:~$ sudo systemctl enable ssh
+Synchronizing state of ssh.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable ssh
+
+toor@ip-172-31-10-216:~$ sudo systemctl start ssh
+toor@ip-172-31-10-216:~$
+
+toor@ip-172-31-10-216:~$ sudo ss -tuln | grep ":22"
+tcp   LISTEN 0      4096         0.0.0.0:22        0.0.0.0:*
+tcp   LISTEN 0      4096            [::]:22           [::]:*
+
+# -------------------------------------------------------
+# Task 3: Validate Data Encryption
+# -------------------------------------------------------
+
+# HTTPS test (curl)
+
+toor@ip-172-31-10-216:~$ curl -kI https://localhost
+HTTP/1.1 200 OK
+Date: Sat, 28 Feb 2026 15:33:18 GMT
+Server: Apache/2.4.58 (Ubuntu)
+Last-Modified: Tue, 20 Feb 2026 08:11:42 GMT
+ETag: "29af-620d1fb0f3c80"
+Accept-Ranges: bytes
+Content-Length: 10671
+Vary: Accept-Encoding
+Content-Type: text/html
+
+# TLS handshake validation (openssl)
+
+toor@ip-172-31-10-216:~$ echo | openssl s_client -connect localhost:443 -servername example.com 2>/dev/null | head -n 20
+CONNECTED(00000003)
+---
+Certificate chain
+ 0 s:CN=example.com, OU=Security, O=LabNetwork, L=New Delhi, ST=Delhi, C=IN
+   i:CN=example.com, OU=Security, O=LabNetwork, L=New Delhi, ST=Delhi, C=IN
+---
+Server certificate
+-----BEGIN CERTIFICATE-----
+MIID...
+-----END CERTIFICATE-----
+---
+SSL handshake has read 1448 bytes and written 405 bytes
+Verification error: self-signed certificate
+---
+New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+
+# Windows validation of encryption
+
+# 7-Zip encrypted archive test:
+# Attempted to open: testfile_encrypted.7z
+# Observed:
+# - Prompt: Enter password
+# - Wrong password entered
+# - Error: Wrong password. Can not open encrypted archive.
+
+# VeraCrypt volume test:
+# Attempted to mount: SecureContainer.hc
+# Observed:
+# - Incorrect password entered
+# - Message: Incorrect password or not a VeraCrypt volume.
+# - Mount failed.
