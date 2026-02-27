@@ -1,0 +1,1 @@
+auth required pam_tally2.so deny=5 unlock_time=600 onerr=fail audit even_deny_root
