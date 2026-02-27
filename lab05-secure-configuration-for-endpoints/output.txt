@@ -1,0 +1,283 @@
+# Lab 05: Secure Configuration for Endpoints (CIS Control 5)
+# Execution Output Log (Windows + Linux)
+
+# -------------------------------------------------------
+# Task 1: Apply a Security Benchmark or Guideline
+# -------------------------------------------------------
+
+# Windows (Group Policy)
+C:\> gpedit.msc
+(Group Policy Editor opened)
+
+# Change Applied (Example: Account Lockout Policy)
+# Path: Computer Configuration > Windows Settings > Security Settings > Account Policies > Account Lockout Policy
+# Settings applied (example):
+# - Account lockout threshold: 5 invalid logon attempts
+# - Account lockout duration: 15 minutes
+# - Reset account lockout counter after: 15 minutes
+
+# Linux: Create working directory + checklist
+
+toor@ip-172-31-10-171:~$ mkdir -p Lab_Secure_Endpoint_Config
+toor@ip-172-31-10-171:~$
+
+toor@ip-172-31-10-171:~$ cd Lab_Secure_Endpoint_Config
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+# (Created configuration_checklist.md using nano and saved)
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo apt-get install lynis -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  libtext-charwidth-perl libtext-wrapi18n-perl
+Suggested packages:
+  chkrootkit rkhunter
+The following NEW packages will be installed:
+  libtext-charwidth-perl libtext-wrapi18n-perl lynis
+0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
+Need to get 529 kB of archives.
+After this operation, 2,154 kB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu noble/universe amd64 lynis all 3.0.9-1 [462 kB]
+Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 libtext-charwidth-perl amd64 0.04-11build3 [10.1 kB]
+Get:3 http://archive.ubuntu.com/ubuntu noble/main amd64 libtext-wrapi18n-perl all 0.06-10 [56.7 kB]
+Fetched 529 kB in 1s (720 kB/s)
+Selecting previously unselected package libtext-charwidth-perl.
+(Reading database ... 83210 files and directories currently installed.)
+Preparing to unpack .../libtext-charwidth-perl_0.04-11build3_amd64.deb ...
+Unpacking libtext-charwidth-perl (0.04-11build3) ...
+Selecting previously unselected package libtext-wrapi18n-perl.
+Preparing to unpack .../libtext-wrapi18n-perl_0.06-10_all.deb ...
+Unpacking libtext-wrapi18n-perl (0.06-10) ...
+Selecting previously unselected package lynis.
+Preparing to unpack .../lynis_3.0.9-1_all.deb ...
+Unpacking lynis (3.0.9-1) ...
+Setting up libtext-charwidth-perl (0.04-11build3) ...
+Setting up libtext-wrapi18n-perl (0.06-10) ...
+Setting up lynis (3.0.9-1) ...
+Processing triggers for man-db (2.12.0-4) ...
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sed -i 's/- \[ \] Installed Lynis (audit tool)/- [x] Installed Lynis (audit tool)/' configuration_checklist.md
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo lynis audit system
+[ Lynis 3.0.9 ]
+
+################################################################################
+  Lynis security audit
+################################################################################
+
+[+] Initializing program
+------------------------------------
+  - Detecting OS...                                 [ DONE ]
+  - Checking profiles...                            [ DONE ]
+  - Initializing plugin system...                   [ DONE ]
+
+[+] System tools
+------------------------------------
+  - Checking availability of tools...               [ DONE ]
+  - Checking system binaries...                     [ DONE ]
+
+[+] Boot and services
+------------------------------------
+  - Service Manager                                [systemd]
+  - Checking enabled services...                    [ DONE ]
+  - Checking running services...                    [ DONE ]
+
+[+] Kernel
+------------------------------------
+  - Checking kernel configuration...                [ DONE ]
+  - Checking kernel parameters...                   [ DONE ]
+
+[+] Users, Groups and Authentication
+------------------------------------
+  - Password file permissions...                    [ OK ]
+  - Shadow file permissions...                      [ OK ]
+  - Checking password hashing methods...            [ OK ]
+  - Checking password policy tools...               [ FOUND ]
+
+[+] SSH Support
+------------------------------------
+  - Checking SSH configuration...                   [ WARNING ]
+    * Suggestion: Disable root login (PermitRootLogin no)
+    * Suggestion: Use Protocol 2 only (default on modern systems)
+    * Suggestion: Reduce authentication methods if possible
+
+[+] Networking
+------------------------------------
+  - Checking DNS configuration...                   [ OK ]
+  - Checking firewall...                            [ OK ]
+  - Checking listening ports...                     [ DONE ]
+
+[+] File systems
+------------------------------------
+  - Checking mount points...                        [ DONE ]
+  - Checking temporary directories...               [ DONE ]
+
+################################################################################
+  Lynis Report
+################################################################################
+
+Warnings (1):
+  - SSH configuration needs hardening
+
+Suggestions (6):
+  - Consider enabling unattended upgrades
+  - Consider hardening SSH daemon configuration
+  - Consider stricter password policies
+  - Review running services and disable unused ones
+  - ...
+
+Hardening index : 72 [##############      ]
+
+Follow-up:
+  - Log file: /var/log/lynis.log
+  - Report file: /var/log/lynis-report.dat
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sed -i 's/- \[ \] Performed Lynis system audit/- [x] Performed Lynis system audit/' configuration_checklist.md
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo grep -nE '^\s*PermitRootLogin|^\s*#\s*PermitRootLogin' /etc/ssh/sshd_config | head
+33:#PermitRootLogin prohibit-password
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo nano /etc/ssh/sshd_config
+(nano opened /etc/ssh/sshd_config)
+# Change applied inside the file:
+PermitRootLogin no
+(Saved and exited nano.)
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo sshd -t
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo systemctl restart ssh
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo sshd -T | grep permitrootlogin
+permitrootlogin no
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sed -i 's/- \[ \] Applied recommended remediation(s) (SSH hardening)/- [x] Applied recommended remediation(s) (SSH hardening)/' configuration_checklist.md
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+# -------------------------------------------------------
+# Task 2: Disable Unnecessary Services
+# -------------------------------------------------------
+
+# Windows (PowerShell)
+PS C:\> Get-Service
+Status   Name               DisplayName
+------   ----               -----------
+Running  WinDefend          Microsoft Defender Antivirus Service
+Running  EventLog           Windows Event Log
+Running  Dhcp               DHCP Client
+Running  Dnscache           DNS Client
+Running  W32Time            Windows Time
+Stopped  XblGameSave        Xbox Live Game Save
+Stopped  Fax                Fax
+Stopped  MapsBroker         Downloaded Maps Manager
+...
+
+# Linux: List services
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo systemctl list-units --type=service
+UNIT                               LOAD   ACTIVE SUB     DESCRIPTION
+accounts-daemon.service             loaded active running Accounts Service
+cron.service                        loaded active running Regular background program processing daemon
+dbus.service                        loaded active running D-Bus System Message Bus
+networkd-dispatcher.service         loaded active running Dispatcher daemon for systemd-networkd
+polkit.service                      loaded active running Authorization Manager
+rsyslog.service                     loaded active running System Logging Service
+ssh.service                         loaded active running OpenBSD Secure Shell server
+systemd-journald.service            loaded active running Journal Service
+systemd-logind.service              loaded active running User Login Management
+unattended-upgrades.service         loaded active running Unattended Upgrades Shutdown
+...
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ systemctl status bluetooth.service --no-pager
+Unit bluetooth.service could not be found.
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ systemctl status avahi-daemon.service --no-pager
+● avahi-daemon.service - Avahi mDNS/DNS-SD Stack
+     Loaded: loaded (/lib/systemd/system/avahi-daemon.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2026-02-28 11:56:23 UTC; 12min ago
+TriggeredBy: ● avahi-daemon.socket
+   Main PID: 1124 (avahi-daemon)
+     Status: "avahi-daemon 0.8 starting up."
+      Tasks: 1 (limit: 2238)
+     Memory: 2.6M
+        CPU: 120ms
+     CGroup: /system.slice/avahi-daemon.service
+             └─1124 avahi-daemon: running [ip-172-31-10-171.local]
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo systemctl disable --now avahi-daemon.service
+Removed "/etc/systemd/system/multi-user.target.wants/avahi-daemon.service".
+Removed "/etc/systemd/system/sockets.target.wants/avahi-daemon.socket".
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ systemctl is-enabled avahi-daemon.service
+disabled
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sed -i 's/- \[ \] Reviewed running services (systemctl)/- [x] Reviewed running services (systemctl)/' configuration_checklist.md
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sed -i 's/- \[ \] Disabled non-essential services (example: bluetooth.service if present)/- [x] Disabled non-essential services (example: bluetooth.service if present)/' configuration_checklist.md
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+# -------------------------------------------------------
+# Task 3: Set Password Complexity (Linux)
+# -------------------------------------------------------
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ ls -l /etc/security/pwquality.conf
+-rw-r--r-- 1 root root 1742 Feb 12 08:14 /etc/security/pwquality.conf
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo cp /etc/security/pwquality.conf /etc/security/pwquality.conf.bak
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo nano /etc/security/pwquality.conf
+(nano opened /etc/security/pwquality.conf)
+# Changes applied in file:
+minlen=12
+dcredit=-1
+ucredit=-1
+lcredit=-1
+ocredit=-1
+(Saved and exited nano.)
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo grep -nE '^(minlen|dcredit|ucredit|lcredit|ocredit)=' /etc/security/pwquality.conf
+154:minlen=12
+155:dcredit=-1
+156:ucredit=-1
+157:lcredit=-1
+158:ocredit=-1
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sudo grep -n "pam_pwquality.so" /etc/pam.d/common-password
+25:password    requisite           pam_pwquality.so retry=3
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sed -i 's/- \[ \] Configured \/etc\/security\/pwquality.conf/- [x] Configured \/etc\/security\/pwquality.conf/' configuration_checklist.md
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sed -i 's/- \[ \] Verified PAM includes pwquality module (where applicable)/- [x] Verified PAM includes pwquality module (where applicable)/' configuration_checklist.md
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ sed -i 's/- \[ \] Documented settings applied/- [x] Documented settings applied/' configuration_checklist.md
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$
+
+toor@ip-172-31-10-171:~/Lab_Secure_Endpoint_Config$ cat configuration_checklist.md
+# Secure Endpoint Configuration Checklist
+
+Date: 2026-02-28
+System: Ubuntu 24.04.1 LTS
+User: toor
+
+## Task 1 - Benchmark / Guideline
+- [x] Installed Lynis (audit tool)
+- [x] Performed Lynis system audit
+- [x] Applied recommended remediation(s) (SSH hardening)
+
+## Task 2 - Unnecessary Services
+- [x] Reviewed running services (systemctl)
+- [x] Disabled non-essential services (example: bluetooth.service if present)
+
+## Task 3 - Password Complexity
+- [x] Configured /etc/security/pwquality.conf
+- [x] Verified PAM includes pwquality module (where applicable)
+- [x] Documented settings applied
