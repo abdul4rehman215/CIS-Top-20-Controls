@@ -1,0 +1,2 @@
+ComputerName,TelnetClientState,MinPasswordLength,PasswordHistory,LockoutThreshold,LockoutDuration,LockoutWindow
+WORKSTATION-VM,Disabled,8,5,5,15,30
