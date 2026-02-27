@@ -1,0 +1,104 @@
+# Lab 06: Monitoring & Analysis of Audit Logs (CIS Control 6)
+# Execution Output Log (Windows + Linux)
+
+# -------------------------------------------------------
+# Task 1: Enable Verbose Logging
+# -------------------------------------------------------
+
+# Windows (Event Viewer + Audit Policy)
+Win + R  →  eventvwr  →  Enter
+(Event Viewer opened successfully)
+
+# Navigation performed:
+# Event Viewer > Windows Logs > Security
+# Security log displayed (Audit Success/Failure events visible depending on policy settings)
+
+Win + R  →  secpol.msc  →  Enter
+(Local Security Policy console opened)
+
+# Navigation performed:
+# Security Settings > Local Policies > Audit Policy
+
+# Audit policies configured (example baseline)
+# - Audit account logon events: Success, Failure
+# - Audit logon events: Success, Failure
+# - Audit account management: Success, Failure
+
+# -------------------------------------------------------
+# Linux: Configure rsyslog for auth logging
+# -------------------------------------------------------
+
+toor@ip-172-31-10-186:~$ mkdir -p Lab_Audit_Log_Monitoring
+toor@ip-172-31-10-186:~$
+
+toor@ip-172-31-10-186:~$ cd Lab_Audit_Log_Monitoring
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$
+
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$ sudo nano /etc/rsyslog.conf
+(nano opened /etc/rsyslog.conf)
+
+# Verified/ensured the following line exists:
+# auth.*                         /var/log/auth.log
+
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$ sudo grep -n "auth\.\*" /etc/rsyslog.conf
+52:auth.*                         /var/log/auth.log
+
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$ sudo systemctl restart rsyslog
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$
+
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$ systemctl status rsyslog --no-pager | head -n 12
+● rsyslog.service - System Logging Service
+     Loaded: loaded (/lib/systemd/system/rsyslog.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2026-02-28 12:21:18 UTC; 4s ago
+TriggeredBy: ● syslog.socket
+       Docs: man:rsyslogd(8)
+             https://www.rsyslog.com/doc/
+   Main PID: 1038 (rsyslogd)
+      Tasks: 3 (limit: 2238)
+     Memory: 4.7M
+        CPU: 62ms
+
+# -------------------------------------------------------
+# Task 2: Collecting Logs
+# -------------------------------------------------------
+
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$ mkdir ~/log_analysis
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$
+
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$ cp /var/log/auth.log ~/log_analysis/
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$
+
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$ ls -lh ~/log_analysis
+total 36K
+-rw-r----- 1 root adm 34K Feb 28 12:22 auth.log
+
+# Windows (Export Security logs)
+# Event Viewer > Windows Logs > Security
+# Action > Save All Events As...
+# Saved as: Security.evtx
+# Security log exported successfully as Security.evtx
+
+# -------------------------------------------------------
+# Task 3: Analyzing Logs for Suspicious Entries
+# -------------------------------------------------------
+
+toor@ip-172-31-10-186:~/Lab_Audit_Log_Monitoring$ cd ~/log_analysis
+toor@ip-172-31-10-186:~/log_analysis$
+
+toor@ip-172-31-10-186:~/log_analysis$ grep 'Failed' auth.log
+Feb 28 12:10:07 ip-172-31-10-186 sshd[1421]: Failed password for invalid user admin from 203.0.113.77 port 51124 ssh2
+Feb 28 12:10:13 ip-172-31-10-186 sshd[1423]: Failed password for invalid user test from 203.0.113.77 port 51188 ssh2
+Feb 28 12:10:19 ip-172-31-10-186 sshd[1426]: Failed password for root from 203.0.113.77 port 51240 ssh2
+Feb 28 12:10:26 ip-172-31-10-186 sshd[1430]: Failed password for invalid user guest from 203.0.113.77 port 51312 ssh2
+Feb 28 12:10:34 ip-172-31-10-186 sshd[1434]: Failed password for invalid user oracle from 203.0.113.77 port 51388 ssh2
+
+toor@ip-172-31-10-186:~/log_analysis$ grep "Failed password" auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -nr | head
+      5 203.0.113.77
+      1 198.51.100.44
+
+toor@ip-172-31-10-186:~/log_analysis$ grep "Accepted" auth.log | tail -n 10
+Feb 28 12:14:52 ip-172-31-10-186 sshd[1552]: Accepted publickey for toor from 172.31.10.25 port 49318 ssh2: ED25519 SHA256:K1zvWlT0oH+Q9tR2Q8m0xEwYbJ5t4u2o6m7h0n1p2q3
+
+# Windows Log Analysis (Event Viewer Filter)
+# Open saved Security.evtx and filter for "Logon Failure"
+# Observed: Multiple "Logon Failure" entries clustered within short time intervals, indicating possible brute-force attempt.
