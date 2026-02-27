@@ -1,0 +1,221 @@
+Lab 21 — Patch Management Basics
+Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: Terminal outputs below are sample/simulated outputs from an authorized lab environment and are formatted like real execution logs for GitHub documentation.
+
+====================================================================
+Task 1: Checking for Available Updates
+====================================================================
+
+--------------------------------------------------------------------
+Windows (GUI Steps) — Documented Observation
+--------------------------------------------------------------------
+
+Windows Update: Checked for updates successfully.
+Updates available: 2 cumulative updates + 1 defender intelligence update (example).
+Reboot required: Pending based on cumulative update status (example).
+
+--------------------------------------------------------------------
+Ubuntu 24.04.1 LTS (apt-based) — Check for updates
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-162:~$ sudo apt update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+22 packages can be upgraded. Run 'apt list --upgradable' to see them.
+
+toor@ip-172-31-10-162:~$ apt list --upgradable
+Listing... Done
+bash/noble-updates 5.2.21-2ubuntu4.1 amd64 [upgradable from: 5.2.21-2ubuntu4]
+curl/noble-updates 8.5.0-2ubuntu10.2 amd64 [upgradable from: 8.5.0-2ubuntu10.1]
+git/noble-updates 1:2.43.0-1ubuntu7.2 amd64 [upgradable from: 1:2.43.0-1ubuntu7.1]
+libssl3t64/noble-security 3.0.13-0ubuntu3.4 amd64 [upgradable from: 3.0.13-0ubuntu3.3]
+openssh-client/noble-updates 1:9.6p1-3ubuntu13.5 amd64 [upgradable from: 1:9.6p1-3ubuntu13.4]
+openssh-server/noble-updates 1:9.6p1-3ubuntu13.5 amd64 [upgradable from: 1:9.6p1-3ubuntu13.4]
+python3-urllib3/noble-updates 2.0.7-1ubuntu0.1 all [upgradable from: 2.0.7-1]
+
+--------------------------------------------------------------------
+CentOS 7 (yum-based) — Check for updates
+--------------------------------------------------------------------
+
+-bash-4.2$ sudo yum check-update
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+ * base: mirror.centos.org
+ * extras: mirror.centos.org
+ * updates: mirror.centos.org
+
+bash.x86_64                     4.2.46-35.el7_9              updates
+curl.x86_64                     7.29.0-59.el7_9.1            updates
+openssl.x86_64                  1:1.0.2k-26.el7_9            updates
+sudo.x86_64                     1.8.23-10.el7_9.2            updates
+vim-minimal.x86_64              2:7.4.629-8.el7_9            updates
+
+====================================================================
+Task 2: Applying Pending Updates
+====================================================================
+
+--------------------------------------------------------------------
+Windows (GUI Steps) — Documented Observation
+--------------------------------------------------------------------
+
+Updates installed successfully (example):
+- 2026-02 Cumulative Update for Windows (example)
+- Windows Defender Antivirus Intelligence Update (example)
+
+Status: Restart required to finish installing updates.
+
+--------------------------------------------------------------------
+Ubuntu 24.04.1 LTS (apt-based) — Apply updates
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-162:~$ sudo apt upgrade -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Calculating upgrade... Done
+The following packages will be upgraded:
+  bash curl git libssl3t64 openssh-client openssh-server python3-urllib3
+7 upgraded, 0 newly installed, 0 to remove and 15 not upgraded.
+Need to get 9,842 kB of archives.
+After this operation, 0 B of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 bash amd64 5.2.21-2ubuntu4.1 [1,693 kB]
+Get:2 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 curl amd64 8.5.0-2ubuntu10.2 [258 kB]
+Get:3 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 openssh-server amd64 1:9.6p1-3ubuntu13.5 [482 kB]
+Get:4 http://security.ubuntu.com/ubuntu noble-security/main amd64 libssl3t64 amd64 3.0.13-0ubuntu3.4 [2,112 kB]
+Fetched 9,842 kB in 3s (3,116 kB/s)
+(Reading database ... 121004 files and directories currently installed.)
+Preparing to unpack .../bash_5.2.21-2ubuntu4.1_amd64.deb ...
+Unpacking bash (5.2.21-2ubuntu4.1) over (5.2.21-2ubuntu4) ...
+Preparing to unpack .../curl_8.5.0-2ubuntu10.2_amd64.deb ...
+Unpacking curl (8.5.0-2ubuntu10.2) over (8.5.0-2ubuntu10.1) ...
+Setting up bash (5.2.21-2ubuntu4.1) ...
+Setting up curl (8.5.0-2ubuntu10.2) ...
+Setting up openssh-server (1:9.6p1-3ubuntu13.5) ...
+Processing triggers for man-db (2.12.0-4) ...
+Processing triggers for systemd (255.4-1ubuntu8) ...
+
+toor@ip-172-31-10-162:~$ apt list --upgradable | tee updates_applied.log
+Listing... Done
+
+toor@ip-172-31-10-162:~$ ls -l updates_applied.log
+-rw-r--r-- 1 toor toor 17 Feb 28 2026 updates_applied.log
+
+--------------------------------------------------------------------
+CentOS 7 (yum-based) — Apply updates
+--------------------------------------------------------------------
+
+-bash-4.2$ sudo yum update -y
+Loaded plugins: fastestmirror, langpacks
+Loading mirror speeds from cached hostfile
+ * base: mirror.centos.org
+ * extras: mirror.centos.org
+ * updates: mirror.centos.org
+Resolving Dependencies
+--> Running transaction check
+---> Package bash.x86_64 0:4.2.46-35.el7_9 will be updated
+---> Package curl.x86_64 0:7.29.0-59.el7_9.1 will be updated
+---> Package openssl.x86_64 1:1.0.2k-26.el7_9 will be updated
+---> Package sudo.x86_64 0:1.8.23-10.el7_9.2 will be updated
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package       Arch      Version                    Repository               Size
+================================================================================
+Updating:
+ bash          x86_64    4.2.46-35.el7_9            updates                 1.0 M
+ curl          x86_64    7.29.0-59.el7_9.1          updates                 271 k
+ openssl       x86_64    1:1.0.2k-26.el7_9          updates                 494 k
+ sudo          x86_64    1.8.23-10.el7_9.2          updates                 932 k
+
+Transaction Summary
+================================================================================
+Upgrade  4 Packages
+
+Total download size: 2.7 M
+Downloading packages:
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Updating   : bash-4.2.46-35.el7_9.x86_64                                 1/8
+  Updating   : curl-7.29.0-59.el7_9.1.x86_64                               2/8
+  Updating   : 1:openssl-1.0.2k-26.el7_9.x86_64                            3/8
+  Updating   : sudo-1.8.23-10.el7_9.2.x86_64                               4/8
+  Cleanup    : bash-4.2.46-34.el7.x86_64                                   5/8
+  Cleanup    : curl-7.29.0-59.el7.x86_64                                   6/8
+  Cleanup    : 1:openssl-1.0.2k-25.el7_9.x86_64                            7/8
+  Cleanup    : sudo-1.8.23-10.el7_9.1.x86_64                               8/8
+  Verifying  : bash-4.2.46-35.el7_9.x86_64                                 1/8
+  Verifying  : curl-7.29.0-59.el7_9.1.x86_64                               2/8
+  Verifying  : 1:openssl-1.0.2k-26.el7_9.x86_64                            3/8
+  Verifying  : sudo-1.8.23-10.el7_9.2.x86_64                               4/8
+
+Updated:
+  bash.x86_64 0:4.2.46-35.el7_9
+  curl.x86_64 0:7.29.0-59.el7_9.1
+  openssl.x86_64 1:1.0.2k-26.el7_9
+  sudo.x86_64 0:1.8.23-10.el7_9.2
+
+Complete!
+
+-bash-4.2$ sudo yum list updates >> updates_applied.log
+
+-bash-4.2$ ls -l updates_applied.log
+-rw-r--r-- 1 centos centos 1684 Feb 28 2026 updates_applied.log
+
+====================================================================
+Task 3: Reboot and Validate Updates
+====================================================================
+
+--------------------------------------------------------------------
+Ubuntu reboot requirement check + reboot
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-162:~$ if [ -f /var/run/reboot-required ]; then echo "Reboot is required"; else echo "Reboot not required"; fi
+Reboot is required
+
+toor@ip-172-31-10-162:~$ sudo reboot
+Connection to ip-172-31-10-162 closed by remote host.
+Connection to ip-172-31-10-162 closed.
+
+[System rebooted — SSH disconnected as expected]
+
+--------------------------------------------------------------------
+Verify System Stability (Ubuntu after reboot)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-167:~$ dmesg | grep -i "error" | head -n 12
+[    0.912345] ACPI Error: AE_NOT_FOUND, During name lookup/catalog (20240322/psobject-220)
+[    1.224812] pci 0000:00:1f.6: AER: can't find device of ID0000
+
+toor@ip-172-31-10-167:~$ bash --version | head -n 2
+GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)
+Copyright (C) 2022 Free Software Foundation, Inc.
+
+toor@ip-172-31-10-167:~$ openssh -V 2>&1
+OpenSSH_9.6p1 Ubuntu-3ubuntu13.5, OpenSSL 3.0.13 30 Jan 2026
+
+--------------------------------------------------------------------
+Verify System Stability (CentOS after update)
+--------------------------------------------------------------------
+
+-bash-4.2$ dmesg | grep -i "error" | head -n 10
+[    0.845123] piix4_smbus 0000:00:07.3: SMBus Host Controller not enabled!
+
+-bash-4.2$ bash --version | head -n 2
+GNU bash, version 4.2.46(2)-release (x86_64-redhat-linux-gnu)
+Copyright (C) 2011 Free Software Foundation, Inc.
+
+-bash-4.2$ openssl version
+OpenSSL 1.0.2k-fips  26 Jan 2017
+
+====================================================================
+End of Lab 21 Output Log
+====================================================================
