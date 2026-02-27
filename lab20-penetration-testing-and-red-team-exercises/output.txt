@@ -1,0 +1,130 @@
+Lab 20 — Penetration Testing & Red Team Exercises
+Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: Outputs below are simulated outputs from an authorized test VM environment (host-only network).
+
+Target VM IP (lab): 192.168.56.101
+
+====================================================================
+Task 1: Scanning with Nmap
+====================================================================
+
+--------------------------------------------------------------------
+Step 1.2: Installing Nmap
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-141:~$ sudo apt-get update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+18 packages can be upgraded. Run 'apt list --upgradable' to see them.
+
+toor@ip-172-31-10-141:~$ sudo apt-get install nmap
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  liblinear4 libpcap0.8 libpcre3 lua-lpeg nmap-common
+Suggested packages:
+  ndiff zenmap
+The following NEW packages will be installed:
+  liblinear4 libpcap0.8 libpcre3 lua-lpeg nmap nmap-common
+0 upgraded, 6 newly installed, 0 to remove and 18 not upgraded.
+Need to get 6,190 kB of archives.
+After this operation, 27.4 MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+Get:1 http://archive.ubuntu.com/ubuntu noble/main amd64 libpcap0.8 amd64 1.10.4-4 [165 kB]
+Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 nmap-common all 7.94+dfsg1-1ubuntu2 [4,128 kB]
+Get:3 http://archive.ubuntu.com/ubuntu noble/main amd64 nmap amd64 7.94+dfsg1-1ubuntu2 [1,612 kB]
+Fetched 6,190 kB in 2s (2,890 kB/s)
+Selecting previously unselected package libpcap0.8:amd64.
+(Reading database ... 112431 files and directories currently installed.)
+Preparing to unpack .../libpcap0.8_1.10.4-4_amd64.deb ...
+Unpacking libpcap0.8:amd64 (1.10.4-4) ...
+Selecting previously unselected package nmap-common.
+Preparing to unpack .../nmap-common_7.94+dfsg1-1ubuntu2_all.deb ...
+Unpacking nmap-common (7.94+dfsg1-1ubuntu2) ...
+Selecting previously unselected package nmap.
+Preparing to unpack .../nmap_7.94+dfsg1-1ubuntu2_amd64.deb ...
+Unpacking nmap (7.94+dfsg1-1ubuntu2) ...
+Setting up libpcap0.8:amd64 (1.10.4-4) ...
+Setting up nmap-common (7.94+dfsg1-1ubuntu2) ...
+Setting up nmap (7.94+dfsg1-1ubuntu2) ...
+Processing triggers for man-db (2.12.0-4) ...
+
+--------------------------------------------------------------------
+Step 1.3: Performing a Basic Scan
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-141:~$ nmap -sV 192.168.56.101
+Starting Nmap 7.94 ( https://nmap.org ) at 2026-02-28 16:21 UTC
+Nmap scan report for 192.168.56.101
+Host is up (0.0013s latency).
+Not shown: 995 closed tcp ports (conn-refused)
+PORT     STATE SERVICE     VERSION
+21/tcp   open  ftp         vsftpd 2.3.4
+22/tcp   open  ssh         OpenSSH 8.9p1 Ubuntu 3ubuntu0.7 (Ubuntu Linux; protocol 2.0)
+80/tcp   open  http        Apache httpd 2.4.52 ((Ubuntu))
+139/tcp  open  netbios-ssn Samba smbd 4.15.13-Ubuntu
+445/tcp  open  microsoft-ds Samba smbd 4.15.13-Ubuntu
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 9.47 seconds
+
+====================================================================
+Task 2: Conducting a Vulnerability Scan with Metasploit
+====================================================================
+
+--------------------------------------------------------------------
+Step 2.2: Launching Metasploit Console
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-141:~$ msfconsole
+Metasploit Framework Console 6.4.22-dev
+Copyright (c) 2006-2026, Rapid7, Inc.
+
+       =[ metasploit v6.4.22-dev                         ]
++ -- --=[ 2408 exploits - 1239 auxiliary - 431 post       ]
++ -- --=[ 1462 payloads - 49 encoders - 11 nops           ]
++ -- --=[ 9 evasion                                       ]
+
+msf6 >
+
+--------------------------------------------------------------------
+Step 2.3: Using an Auxiliary Module (SMB Version Scan)
+--------------------------------------------------------------------
+
+msf6 > use auxiliary/scanner/smb/smb_version
+msf6 auxiliary(scanner/smb/smb_version) >
+
+msf6 auxiliary(scanner/smb/smb_version) > set RHOSTS 192.168.56.101
+RHOSTS => 192.168.56.101
+
+msf6 auxiliary(scanner/smb/smb_version) > run
+[*] 192.168.56.101:445     - SMB Detected (versions:1) (preferred dialect:SMB 3.1.1)
+[*] 192.168.56.101:445     - Host is running Samba smbd 4.15.13 (Ubuntu)
+[*] 192.168.56.101:445     - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+
+====================================================================
+Task 3: Attempting a Benign Exploit (Safe Lab Verification)
+====================================================================
+
+msf6 > use exploit/unix/ftp/vsftpd_234_backdoor
+msf6 exploit(unix/ftp/vsftpd_234_backdoor) >
+
+msf6 exploit(unix/ftp/vsftpd_234_backdoor) > set RHOST 192.168.56.101
+RHOST => 192.168.56.101
+
+msf6 exploit(unix/ftp/vsftpd_234_backdoor) > exploit
+[*] 192.168.56.101:21 - Banner: 220 (vsFTPd 2.3.4)
+[*] 192.168.56.101:21 - Attempting to trigger backdoor...
+[-] 192.168.56.101:21 - Exploit failed: The target is not vulnerable (no backdoor behavior observed).
+[*] Exploit completed, but no session was created.
+
+====================================================================
+End of Lab 20 Output Log
+====================================================================
