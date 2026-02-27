@@ -1,0 +1,151 @@
+Lab 26 — Endpoint Security Tool Introduction (Wazuh Manager)
+Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: Outputs below are sample/simulated outputs from an authorized lab environment and formatted like a real GitHub lab run.
+
+Environment: Ubuntu 24.04.1 LTS (Cloud Lab Environment)
+User: toor
+Endpoint Tool Used (Lab): Wazuh Manager (Open-source)
+
+====================================================================
+Task 1: Install an Endpoint Security Solution (Wazuh)
+====================================================================
+
+--------------------------------------------------------------------
+Prepare the environment (update packages)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-188:~$ sudo apt-get update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+17 packages can be upgraded. Run 'apt list --upgradable' to see them.
+
+--------------------------------------------------------------------
+Download and run Wazuh repository setup script
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-188:~$ curl -sO https://packages.wazuh.com/4.x/apt/setup_repo.sh
+
+toor@ip-172-31-10-188:~$ ls -l setup_repo.sh
+-rw-r--r-- 1 toor toor 4256 Feb 28 2026 setup_repo.sh
+
+toor@ip-172-31-10-188:~$ sudo bash setup_repo.sh
+Installing the Wazuh repository...
+OK: Imported GPG key
+OK: Added Wazuh APT repository to /etc/apt/sources.list.d/wazuh.list
+OK: Updating packages...
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Get:2 https://packages.wazuh.com/4.x/apt stable InRelease [5,882 B]
+Fetched 5,882 B in 1s (4,991 B/s)
+Reading package lists... Done
+Wazuh repository installed successfully.
+
+--------------------------------------------------------------------
+Install wazuh-manager
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-188:~$ sudo apt-get install wazuh-manager -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following NEW packages will be installed:
+  wazuh-manager
+0 upgraded, 1 newly installed, 0 to remove and 17 not upgraded.
+Need to get 79.6 MB of archives.
+After this operation, 265 MB of additional disk space will be used.
+Get:1 https://packages.wazuh.com/4.x/apt stable/main amd64 wazuh-manager amd64 4.7.2-1 [79.6 MB]
+Fetched 79.6 MB in 5s (15.6 MB/s)
+Selecting previously unselected package wazuh-manager.
+(Reading database ... 121311 files and directories currently installed.)
+Preparing to unpack .../wazuh-manager_4.7.2-1_amd64.deb ...
+Unpacking wazuh-manager (4.7.2-1) ...
+Setting up wazuh-manager (4.7.2-1) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/wazuh-manager.service → /lib/systemd/system/wazuh-manager.service.
+Processing triggers for systemd (255.4-1ubuntu8) ...
+
+--------------------------------------------------------------------
+Verify Wazuh Manager is running
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-188:~$ sudo systemctl status wazuh-manager --no-pager | head -n 18
+● wazuh-manager.service - Wazuh manager
+     Loaded: loaded (/lib/systemd/system/wazuh-manager.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2026-02-28 15:10:23 UTC; 8s ago
+       Docs: https://documentation.wazuh.com
+   Main PID: 4021 (wazuh-managerd)
+      Tasks: 62 (limit: 2252)
+     Memory: 195.3M
+        CPU: 1.842s
+     CGroup: /system.slice/wazuh-manager.service
+             ├─4021 /var/ossec/bin/wazuh-managerd
+             ├─4042 /var/ossec/bin/wazuh-db
+             ├─4060 /var/ossec/bin/wazuh-modulesd
+             └─4088 /var/ossec/bin/wazuh-analysisd
+
+====================================================================
+Task 2: Dashboard Reporting (Documented)
+====================================================================
+
+Dashboard access (lab pre-configured):
+URL (example): https://10.0.0.40/app/wazuh
+
+Observed Result:
+- Wazuh Dashboard Login: Successful
+- Status: Manager connected
+- Agents: 1 (local)
+- Alerts: Visible in Security Events panel
+
+====================================================================
+Task 3: Trigger Alerts (EICAR Test)
+====================================================================
+
+--------------------------------------------------------------------
+Create test directory and EICAR file
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-188:~$ mkdir -p ~/Lab_EndpointSecurity_Test && cd ~/Lab_EndpointSecurity_Test
+
+toor@ip-172-31-10-188:~/Lab_EndpointSecurity_Test$ nano eicar.com
+[nano opened eicar.com]
+
+[Saved file content exactly as instructed]
+X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+
+--------------------------------------------------------------------
+Verify file exists and trigger file access
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-188:~/Lab_EndpointSecurity_Test$ ls -l
+total 4
+-rw-r--r-- 1 toor toor 68 Feb 28 2026 eicar.com
+
+toor@ip-172-31-10-188:~/Lab_EndpointSecurity_Test$ cat eicar.com
+X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+
+--------------------------------------------------------------------
+Confirm Wazuh generated an alert (alerts.json)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-188:~$ sudo tail -n 30 /var/ossec/logs/alerts/alerts.json | head -n 20
+{"timestamp":"2026-02-28T15:24:10.621+0000","rule":{"level":5,"description":"Suspicious file detected (EICAR test string)","id":"100200"},"agent":{"id":"000","name":"ip-172-31-10-188"},"manager":{"name":"wazuh-manager"},"data":{"path":"/home/toor/Lab_EndpointSecurity_Test/eicar.com","sha1":"3395856CE81F2B7382DEE72602F798B642F14140"},"location":"syscheck","decoder":{"name":"syscheck"}}
+{"timestamp":"2026-02-28T15:24:12.044+0000","rule":{"level":3,"description":"File integrity monitoring event: file modified","id":"550"},"agent":{"id":"000","name":"ip-172-31-10-188"},"data":{"path":"/home/toor/Lab_EndpointSecurity_Test/eicar.com"},"location":"syscheck"}
+
+--------------------------------------------------------------------
+Dashboard verification (documented)
+--------------------------------------------------------------------
+
+Wazuh Dashboard → Security Events:
+- Filter used: eicar OR Lab_EndpointSecurity_Test
+- Alert visible: "Suspicious file detected (EICAR test string)"
+- Level: 5
+- Agent: ip-172-31-10-188 (local)
+- File path: /home/toor/Lab_EndpointSecurity_Test/eicar.com
+Status: Logged and searchable
+
+====================================================================
+End of Lab 26 Output Log
+====================================================================
