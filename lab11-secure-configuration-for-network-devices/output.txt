@@ -1,0 +1,178 @@
+# Lab 11: Secure Configuration for Network Devices (CIS Control 11)
+# Execution Output Log (Windows + Linux host + Network Device CLI simulation)
+
+# -------------------------------------------------------
+# Task 1: Access the Device’s Management Interface
+# -------------------------------------------------------
+
+# Windows (finding default gateway)
+
+C:\> ipconfig
+Windows IP Configuration
+
+Ethernet adapter Ethernet:
+
+   Connection-specific DNS Suffix  . :
+   IPv4 Address. . . . . . . . . . . : 192.168.1.100
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+
+# Default Gateway / Router IP: 192.168.1.1
+
+# Linux (alternative gateway check)
+
+toor@ip-172-31-10-253:~$ ip route | head
+default via 172.31.0.1 dev ens5 proto dhcp src 172.31.10.253 metric 100
+172.31.0.0/20 dev ens5 proto kernel scope link src 172.31.10.253 metric 100
+
+# Web Interface Access (manual browser step)
+# Navigated to: http://192.168.1.1
+# Login attempted using default credentials:
+# - admin/admin (worked in this test device)
+# Observed: Login successful. Device admin dashboard loaded.
+
+# -------------------------------------------------------
+# Subtask 1.2: Using SSH (Device CLI + Host SSH)
+# -------------------------------------------------------
+
+# Device CLI (enabling SSH) — Console Session
+
+Router> enable
+Router#
+Router# configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#
+Router(config)# ip ssh version 2
+Router(config)#
+Router(config)# line vty 0 4
+Router(config-line)#
+Router(config-line)# transport input ssh
+Router(config-line)#
+Router(config-line)# exit
+Router(config)#
+Router(config)# exit
+Router#
+
+# SSH Access from Linux host
+
+toor@ip-172-31-10-253:~$ ssh admin@192.168.1.1
+The authenticity of host '192.168.1.1 (192.168.1.1)' can't be established.
+ED25519 key fingerprint is SHA256:O6y9aWJmF1rXk0v3b7Qx+5yV9c8rN2s1tYpL0mKp9qA.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.1.1' (ED25519) to the list of known hosts.
+admin@192.168.1.1's password:
+(password entered)
+Router>
+
+# Console Access (PuTTY example - manual step)
+# Settings used:
+# - Connection type: Serial
+# - Port: COM3
+# - Speed (baud): 9600
+# Observed:
+# - Console session opened successfully. Device prompt displayed: Router>
+
+# -------------------------------------------------------
+# Task 2: Change Default Credentials and Disable Unnecessary Services
+# -------------------------------------------------------
+
+# Subtask 2.1: Change Default Credentials (Device CLI)
+
+Router> enable
+Router#
+Router# configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#
+Router(config)# username newuser password newpassword
+Router(config)#
+Router(config)# exit
+Router#
+
+Router# write memory
+Building configuration...
+[OK]
+
+# Subtask 2.2: Disable Unnecessary Services (Device CLI)
+
+Router# show services
+Service settings:
+  TCP small servers:           Disabled
+  UDP small servers:           Disabled
+  Finger:                      Disabled
+  DHCP server:                 Enabled
+  HTTP server:                 Enabled
+  HTTPS server:                Enabled
+  Telnet server:               Disabled
+  SSH server:                  Enabled (v2)
+  CDP:                         Enabled
+
+Router# configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#
+Router(config)# no ip http server
+Router(config)#
+Router(config)# exit
+Router#
+
+Router# copy running-config startup-config
+Destination filename [startup-config]?
+Building configuration...
+[OK]
+
+Router# show services
+Service settings:
+  TCP small servers:           Disabled
+  UDP small servers:           Disabled
+  Finger:                      Disabled
+  DHCP server:                 Enabled
+  HTTP server:                 Disabled
+  HTTPS server:                Enabled
+  Telnet server:               Disabled
+  SSH server:                  Enabled (v2)
+  CDP:                         Enabled
+
+# -------------------------------------------------------
+# Task 3: Document Final Configuration Settings
+# -------------------------------------------------------
+
+Router# show running-config
+Building configuration...
+
+Current configuration : 1824 bytes
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+!
+hostname Router
+!
+username newuser password 0 newpassword
+!
+ip domain-name lab.local
+!
+ip ssh version 2
+!
+line vty 0 4
+ transport input ssh
+ login local
+!
+no ip http server
+ip http secure-server
+!
+end
+
+# Save configuration output to a text file (documentation)
+
+toor@ip-172-31-10-253:~$ mkdir -p Lab11_Secure_Network_Device_Config
+toor@ip-172-31-10-253:~$
+
+toor@ip-172-31-10-253:~$ cd Lab11_Secure_Network_Device_Config
+toor@ip-172-31-10-253:~/Lab11_Secure_Network_Device_Config$
+
+toor@ip-172-31-10-253:~/Lab11_Secure_Network_Device_Config$ nano final_device_config.txt
+# (Saved and exited nano)
+
+toor@ip-172-31-10-253:~/Lab11_Secure_Network_Device_Config$ ls -l
+total 4
+-rw-r--r-- 1 toor toor 1123 Feb 28 15:06 final_device_config.txt
