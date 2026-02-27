@@ -1,0 +1,137 @@
+# Lab 09: Limiting Network Ports, Protocols, & Services (CIS Control 9)
+# Execution Output Log (Sequential)
+
+# -------------------------------------------------------
+# Task 1: Check Open Ports on a Local System
+# -------------------------------------------------------
+
+toor@ip-172-31-10-229:~$ mkdir -p Lab_Limiting_Ports_Protocols_Services
+toor@ip-172-31-10-229:~$
+
+toor@ip-172-31-10-229:~$ cd Lab_Limiting_Ports_Protocols_Services
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo netstat -tuln
+sudo: netstat: command not found
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo apt update
+Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease
+Hit:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo apt install net-tools -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following NEW packages will be installed:
+  net-tools
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 211 kB of archives.
+After this operation, 1,012 kB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu noble/main amd64 net-tools amd64 2.10-0.1ubuntu4 [211 kB]
+Fetched 211 kB in 0s (1,094 kB/s)
+Selecting previously unselected package net-tools.
+(Reading database ... 84240 files and directories currently installed.)
+Preparing to unpack .../net-tools_2.10-0.1ubuntu4_amd64.deb ...
+Unpacking net-tools (2.10-0.1ubuntu4) ...
+Setting up net-tools (2.10-0.1ubuntu4) ...
+Processing triggers for man-db (2.12.0-4) ...
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo netstat -tuln
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN
+tcp        0      0 127.0.0.1:9392          0.0.0.0:*               LISTEN
+tcp6       0      0 :::22                   :::*                    LISTEN
+udp        0      0 127.0.0.53:53           0.0.0.0:*
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo ss -tuln
+Netid State  Recv-Q Send-Q Local Address:Port    Peer Address:Port Process
+udp   UNCONN 0      0      127.0.0.53:53        0.0.0.0:*
+tcp   LISTEN 0      4096   0.0.0.0:22           0.0.0.0:*
+tcp   LISTEN 0      4096   127.0.0.1:9392       0.0.0.0:*
+tcp   LISTEN 0      4096   [::]:22              [::]:*
+
+# -------------------------------------------------------
+# Task 2: Disable or Block Unused Ports/Services (Firewall)
+# -------------------------------------------------------
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo ufw status
+Status: inactive
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo ufw enable
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+Firewall is active and enabled on system startup
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo ufw allow 22/tcp
+Rules updated
+Rules updated (v6)
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo ufw deny 23
+Rule added
+Rule added (v6)
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo ufw reload
+Firewall reloaded
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo ufw status verbose
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere
+23                         DENY IN     Anywhere
+22/tcp (v6)                ALLOW IN    Anywhere (v6)
+23 (v6)                    DENY IN     Anywhere (v6)
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo iptables -A INPUT -p tcp --dport 23 -j DROP
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo iptables -L INPUT -n --line-numbers | head -n 20
+Chain INPUT (policy ACCEPT)
+num  target     prot opt source               destination
+1    DROP       tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:23
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo mkdir -p /etc/iptables
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo iptables-save > /etc/iptables/rules.v4
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo head -n 15 /etc/iptables/rules.v4
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -p tcp -m tcp --dport 23 -j DROP
+COMMIT
+
+# -------------------------------------------------------
+# Task 3: Verification
+# -------------------------------------------------------
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo netstat -tuln
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN
+tcp        0      0 127.0.0.1:9392          0.0.0.0:*               LISTEN
+tcp6       0      0 :::22                   :::*                    LISTEN
+udp        0      0 127.0.0.53:53           0.0.0.0:*
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo ss -tuln
+Netid State  Recv-Q Send-Q Local Address:Port    Peer Address:Port Process
+udp   UNCONN 0      0      127.0.0.53:53        0.0.0.0:*
+tcp   LISTEN 0      4096   0.0.0.0:22           0.0.0.0:*
+tcp   LISTEN 0      4096   127.0.0.1:9392       0.0.0.0:*
+tcp   LISTEN 0      4096   [::]:22              [::]:*
+
+toor@ip-172-31-10-229:~/Lab_Limiting_Ports_Protocols_Services$ sudo ss -tuln | grep ":23" || echo "Port 23 is not listening"
+Port 23 is not listening
