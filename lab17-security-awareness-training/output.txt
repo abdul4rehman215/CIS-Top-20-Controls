@@ -1,0 +1,82 @@
+Lab 17 — Security Awareness Training (Phishing)
+Execution Output Log
+(Full output, sequential, no truncation)
+
+====================================================================
+Workspace Setup
+====================================================================
+
+toor@ip-172-31-10-209:~$ mkdir -p Lab17_Security_Awareness/{slides,quiz,feedback,notes}
+
+toor@ip-172-31-10-209:~$ cd Lab17_Security_Awareness
+
+toor@ip-172-31-10-209:~/Lab17_Security_Awareness$ ls -R
+.:
+feedback  notes  quiz  slides
+
+./feedback:
+
+./notes:
+
+./quiz:
+
+./slides:
+
+====================================================================
+Task 1: Create Presentation Content (Slide Outline)
+====================================================================
+
+toor@ip-172-31-10-209:~/Lab17_Security_Awareness$ nano slides/phishing_presentation.md
+[nano opened slides/phishing_presentation.md]
+
+====================================================================
+Quick Review / Verification of Slide Content File
+====================================================================
+
+toor@ip-172-31-10-209:~/Lab17_Security_Awareness$ wc -l slides/phishing_presentation.md
+74 slides/phishing_presentation.md
+
+toor@ip-172-31-10-209:~/Lab17_Security_Awareness$ head -n 12 slides/phishing_presentation.md
+# Phishing: A Deceptive Cyber Threat
+
+## Slide 1 — Introduction
+- **Title:** Phishing: A Deceptive Cyber Threat
+- **Goal:** Understand how phishing works and how to stop it.
+- **Why it matters:** One click can lead to account takeover, malware, or data loss.
+
+---
+
+====================================================================
+Task 2: Create Quiz + Distribution Message
+====================================================================
+
+toor@ip-172-31-10-209:~/Lab17_Security_Awareness$ nano quiz/phishing_quiz.md
+[nano opened quiz/phishing_quiz.md]
+
+toor@ip-172-31-10-209:~/Lab17_Security_Awareness$ nano quiz/quiz_invite_message.txt
+[nano opened quiz/quiz_invite_message.txt]
+
+====================================================================
+Task 3: Create Feedback Questions + Knowledge Gap Analysis Notes
+====================================================================
+
+toor@ip-172-31-10-209:~/Lab17_Security_Awareness$ nano feedback/feedback_questions.md
+[nano opened feedback/feedback_questions.md]
+
+toor@ip-172-31-10-209:~/Lab17_Security_Awareness$ nano notes/knowledge_gaps_analysis.md
+[nano opened notes/knowledge_gaps_analysis.md]
+
+====================================================================
+Final Verification: Confirm Deliverables Exist
+====================================================================
+
+toor@ip-172-31-10-209:~/Lab17_Security_Awareness$ find . -type f -maxdepth 2 -print
+./slides/phishing_presentation.md
+./quiz/phishing_quiz.md
+./quiz/quiz_invite_message.txt
+./feedback/feedback_questions.md
+./notes/knowledge_gaps_analysis.md
+
+====================================================================
+End of Lab 17 Output Log
+====================================================================
