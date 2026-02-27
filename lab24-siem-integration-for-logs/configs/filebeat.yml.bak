@@ -1,0 +1,6 @@
+(Backup created during lab)
+Original file copied from: /etc/filebeat/filebeat.yml
+Backup location: /etc/filebeat/filebeat.yml.bak
+
+Note: This repository stores a reference placeholder for the backup.
+In a real environment, the full backup content can be stored securely if it contains no secrets.
