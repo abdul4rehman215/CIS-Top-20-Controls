@@ -1,0 +1,11 @@
+Subject: Quick Security Awareness Quiz (Phishing)
+
+Hi Team,
+
+I’m running a short phishing-awareness quiz to help identify common risks and knowledge gaps.
+It takes about 5 minutes and is meant for learning (not punishment).
+
+Please answer honestly. After the quiz, we’ll review common mistakes and improve our training.
+
+Thanks!
+- Security Awareness Training (Lab 17)
