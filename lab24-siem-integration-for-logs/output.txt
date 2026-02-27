@@ -1,0 +1,214 @@
+Lab 24 — SIEM Integration for Logs
+Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: Outputs below are sample/simulated outputs from an authorized lab environment and formatted like a real lab run for GitHub documentation.
+
+SIEM stack used (lab): ELK (Elasticsearch + Kibana) with Filebeat → Elasticsearch
+Test host: ip-172-31-10-176
+Network interface: ens5
+
+====================================================================
+Task 1: Setting Up a Log Forwarder (Filebeat)
+====================================================================
+
+--------------------------------------------------------------------
+Create working directory
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~$ mkdir -p Lab24_SIEM/{packages,configs,tests,notes}
+
+toor@ip-172-31-10-176:~$ cd Lab24_SIEM/packages
+
+--------------------------------------------------------------------
+Download Filebeat package (version used: 8.12.2)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~/Lab24_SIEM/packages$ curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.12.2-amd64.deb
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 98.5M  100 98.5M    0     0  21.6M      0  0:00:04  0:00:04 --:--:-- 21.7M
+
+toor@ip-172-31-10-176:~/Lab24_SIEM/packages$ ls -lh
+total 99M
+-rw-r--r-- 1 toor toor 99M Feb 28 2026 filebeat-8.12.2-amd64.deb
+
+--------------------------------------------------------------------
+Install Filebeat
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~/Lab24_SIEM/packages$ sudo dpkg -i filebeat-8.12.2-amd64.deb
+Selecting previously unselected package filebeat.
+(Reading database ... 121215 files and directories currently installed.)
+Preparing to unpack filebeat-8.12.2-amd64.deb ...
+Unpacking filebeat (8.12.2) ...
+Setting up filebeat (8.12.2) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/filebeat.service → /lib/systemd/system/filebeat.service.
+
+toor@ip-172-31-10-176:~$ filebeat version
+filebeat version 8.12.2 (amd64), libbeat 8.12.2 [f5c9f8a4c9d2b56a2f3b0f9b5f1f3d1b7f3c2a11 built 2026-02-01 12:00:00 +0000 UTC]
+
+--------------------------------------------------------------------
+Backup and edit Filebeat configuration
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~$ sudo cp /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml.bak
+
+toor@ip-172-31-10-176:~$ sudo nano /etc/filebeat/filebeat.yml
+[nano opened /etc/filebeat/filebeat.yml]
+
+[Applied configuration entries]
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/*.log
+
+output.elasticsearch:
+  hosts: ["localhost:9200"]
+  username: "elastic"
+  password: "changeme"
+
+--------------------------------------------------------------------
+Validate Filebeat configuration and output connectivity
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~$ sudo filebeat test config
+Config OK
+
+toor@ip-172-31-10-176:~$ sudo filebeat test output
+elasticsearch: http://localhost:9200...
+  parse url... OK
+  connection...
+    parse host... OK
+    dns lookup... OK
+    addresses: 127.0.0.1
+    dial up... OK
+  TLS... WARN secure connection disabled
+  talk to server... OK
+  version: 8.12.2
+
+--------------------------------------------------------------------
+Start Filebeat service
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~$ sudo service filebeat start
+
+toor@ip-172-31-10-176:~$ sudo service filebeat status
+● filebeat.service - Filebeat sends log files to Logstash or directly to Elasticsearch.
+     Loaded: loaded (/lib/systemd/system/filebeat.service; enabled; preset: enabled)
+     Active: active (running) since Sat 2026-02-28 14:05:19 UTC; 6s ago
+       Docs: https://www.elastic.co/beats/filebeat
+   Main PID: 3187 (filebeat)
+      Tasks: 11 (limit: 2252)
+     Memory: 46.3M
+        CPU: 321ms
+     CGroup: /system.slice/filebeat.service
+             └─3187 /usr/share/filebeat/bin/filebeat --environment systemd -c /etc/filebeat/filebeat.yml
+
+====================================================================
+Task 2: Sending Logs to SIEM (Generate + Verify Local Events)
+====================================================================
+
+--------------------------------------------------------------------
+Generate log events (authpriv.warning)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~$ logger -p authpriv.warning "LAB24_TEST: simulated failed login attempt for user 'admin' from 10.10.10.50"
+
+toor@ip-172-31-10-176:~$ for i in {1..6}; do logger -p authpriv.warning "LAB24_TEST: failed login #$i for user 'admin' from 10.10.10.50"; done
+
+toor@ip-172-31-10-176:~$ sudo grep "LAB24_TEST" /var/log/auth.log | tail -n 8
+Feb 28 14:08:12 ip-172-31-10-176 toor: LAB24_TEST: simulated failed login attempt for user 'admin' from 10.10.10.50
+Feb 28 14:08:14 ip-172-31-10-176 toor: LAB24_TEST: failed login #1 for user 'admin' from 10.10.10.50
+Feb 28 14:08:14 ip-172-31-10-176 toor: LAB24_TEST: failed login #2 for user 'admin' from 10.10.10.50
+Feb 28 14:08:14 ip-172-31-10-176 toor: LAB24_TEST: failed login #3 for user 'admin' from 10.10.10.50
+Feb 28 14:08:14 ip-172-31-10-176 toor: LAB24_TEST: failed login #4 for user 'admin' from 10.10.10.50
+Feb 28 14:08:14 ip-172-31-10-176 toor: LAB24_TEST: failed login #5 for user 'admin' from 10.10.10.50
+Feb 28 14:08:14 ip-172-31-10-176 toor: LAB24_TEST: failed login #6 for user 'admin' from 10.10.10.50
+
+====================================================================
+Task 2: Verify Log Reception in Elasticsearch (SIEM backend)
+====================================================================
+
+--------------------------------------------------------------------
+Verify Filebeat indices exist
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~$ curl -s http://localhost:9200/_cat/indices?v | head -n 15
+health status index                               uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   filebeat-8.12.2-2026.02.28          4nY1mCz7Tt6nC1o8s9aZxQ   1   0        932            0      1.2mb          1.2mb
+green  open   .kibana_8.12.2_001                  kf1nXk8cQ9u4L2b3p1a2sD   1   0        114            0    913.4kb        913.4kb
+
+--------------------------------------------------------------------
+Search for test pattern (LAB24_TEST)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~$ curl -s "http://localhost:9200/filebeat-*/_search?q=message:LAB24_TEST&size=3" | head -n 40
+{
+  "took" : 12,
+  "timed_out" : false,
+  "_shards" : { "total" : 1, "successful" : 1, "skipped" : 0, "failed" : 0 },
+  "hits" : {
+    "total" : { "value" : 7, "relation" : "eq" },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "filebeat-8.12.2-2026.02.28",
+        "_source" : {
+          "host" : { "hostname" : "ip-172-31-10-176" },
+          "log" : { "file" : { "path" : "/var/log/auth.log" } },
+          "message" : "LAB24_TEST: failed login #6 for user 'admin' from 10.10.10.50"
+        }
+      },
+      {
+        "_index" : "filebeat-8.12.2-2026.02.28",
+        "_source" : {
+          "host" : { "hostname" : "ip-172-31-10-176" },
+          "log" : { "file" : { "path" : "/var/log/auth.log" } },
+          "message" : "LAB24_TEST: failed login #5 for user 'admin' from 10.10.10.50"
+        }
+      }
+    ]
+  }
+}
+
+====================================================================
+Task 3: Alerting Validation (Threshold Trigger Test)
+====================================================================
+
+--------------------------------------------------------------------
+Trigger alert condition again (burst)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-176:~$ for i in {1..5}; do logger -p authpriv.warning "LAB24_TEST: failed login burst #$i for user 'admin' from 10.10.10.50"; done
+
+toor@ip-172-31-10-176:~$ curl -s "http://localhost:9200/filebeat-*/_count?q=message:%22LAB24_TEST:%20failed%20login%20burst%22"
+{"count":5,"_shards":{"total":1,"successful":1,"skipped":0,"failed":0}}
+
+--------------------------------------------------------------------
+Kibana UI Verification (documented)
+--------------------------------------------------------------------
+
+Kibana Discover:
+- Index: filebeat-*
+- Query: LAB24_TEST
+- Results: 7 events found
+- Fields visible: host.hostname, log.file.path, message, @timestamp
+
+Alert rule created (Kibana Security / Alerts UI):
+- Rule Name: LAB24 - Failed Login Threshold
+- Index: filebeat-*
+- Condition: More than 5 matching events in 5 minutes
+- Query: message:"LAB24_TEST: failed login"
+- Action: Log / Email (lab simulation)
+
+Observed Result:
+Kibana Alerts:
+- Rule: LAB24 - Failed Login Threshold
+- Status: TRIGGERED
+- Reason: 5+ matching events detected in 5m
+- Action: Notification generated (lab simulation)
+
+====================================================================
+End of Lab 24 Output Log
+====================================================================
