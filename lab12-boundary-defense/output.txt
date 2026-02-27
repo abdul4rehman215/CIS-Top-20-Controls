@@ -1,0 +1,72 @@
+# Lab 12: Boundary Defense (CIS Control 12)
+# Execution Output Log (Sequential)
+
+# -------------------------------------------------------
+# Task 2: Verify Inbound and Outbound Firewall Rules
+# -------------------------------------------------------
+
+toor@ip-172-31-10-207:~$ mkdir -p Lab12_Boundary_Defense
+toor@ip-172-31-10-207:~$
+
+toor@ip-172-31-10-207:~$ cd Lab12_Boundary_Defense
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$
+
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$ sudo ufw status verbose
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere
+23                         DENY IN     Anywhere
+22/tcp (v6)                ALLOW IN    Anywhere (v6)
+23 (v6)                    DENY IN     Anywhere (v6)
+
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$ sudo ss -tuln
+Netid State  Recv-Q Send-Q Local Address:Port    Peer Address:Port Process
+udp   UNCONN 0      0      127.0.0.53:53        0.0.0.0:*
+tcp   LISTEN 0      4096   0.0.0.0:22           0.0.0.0:*
+tcp   LISTEN 0      4096   127.0.0.1:9392       0.0.0.0:*
+tcp   LISTEN 0      4096   [::]:22              [::]:*
+
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$ sudo ufw deny 8080
+Rule added
+Rule added (v6)
+
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$ sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW       Anywhere
+23                         DENY        Anywhere
+8080                       DENY        Anywhere
+22/tcp (v6)                ALLOW       Anywhere (v6)
+23 (v6)                    DENY        Anywhere (v6)
+8080 (v6)                  DENY        Anywhere (v6)
+
+# -------------------------------------------------------
+# Task 3: Test the Boundary by Accessing a Blocked Port
+# -------------------------------------------------------
+
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$ nc -h 2>&1 | head -n 2
+OpenBSD netcat (Debian patchlevel 1.219-1ubuntu1)
+usage: nc [-46CDdFhklNnrStUuvZz] ...
+
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$ ip -4 a show ens5 | grep inet
+    inet 172.31.10.207/20 brd 172.31.15.255 scope global dynamic ens5
+
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$ nc -vz 172.31.10.207 8080
+nc: connect to 172.31.10.207 port 8080 (tcp) failed: Connection timed out
+
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$ nc -vz 172.31.10.207 22
+Connection to 172.31.10.207 22 port [tcp/ssh] succeeded!
+
+# -------------------------------------------------------
+# Optional: Local documentation file created
+# -------------------------------------------------------
+
+toor@ip-172-31-10-207:~/Lab12_Boundary_Defense$ nano boundary_defense_notes.txt
+# (Saved and exited nano)
