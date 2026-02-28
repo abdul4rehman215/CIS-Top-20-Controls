@@ -1,6 +1,6 @@
-# 🧠 Interview Q&A — Lab 01: Hardware Asset Inventory (CIS Control 1)
+# 🧠 Interview Q&A — Lab 01: Hardware Asset Inventory (CIS Controls)
 
-This Q&A reinforces concepts practiced in this lab: asset identification, ownership assignment, and verification using network discovery.
+> This Q&A reinforces concepts practiced in this lab: asset identification, ownership assignment, and verification using network discovery.
 
 ---
 
