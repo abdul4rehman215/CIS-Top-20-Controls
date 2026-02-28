@@ -1,4 +1,4 @@
-# 🧠 Interview Q&A — Lab 05: Secure Configuration for Endpoints (CIS Control 5)
+# 🧠 Interview Q&A — Lab 05: Secure Configuration for Endpoints (CIS Controls)
 
 > This Q&A focuses on endpoint hardening, benchmark-driven configuration, service reduction, SSH security, and password policy enforcement.
 
