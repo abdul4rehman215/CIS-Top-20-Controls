@@ -1,0 +1,9 @@
+System Audit Report (Sample)
+----------------------------
+Host: ip-172-31-10-241
+OS: Ubuntu 24.04.1 LTS
+Date: 2026-02-28
+
+Summary:
+- Basic configuration review completed
+- No critical issues observed in sample test environment
