@@ -93,7 +93,7 @@ lab23-hardening-linux-system/
 └── artifacts/
 └── sshd_config.bak
 
-```id="5c6d0r"
+```
 
 > `artifacts/` is used for safe configuration backups (no secrets).  
 > `notes/` contains CIS baseline decisions and next-step recommendations.
