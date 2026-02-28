@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting Guide — Lab 10: Data Recovery Capabilities (CIS Control 10)
+# 🛠️ Troubleshooting Guide — Lab 10: Data Recovery Capabilities (CIS Controls)
 
 > This guide covers common issues when creating tar backups, scheduling with cron, restoring archives, and verifying integrity.
 
