@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting — Lab 02: Software Asset Inventory (CIS Controls)
+# 🛠️ Troubleshooting Guide — Lab 02: Software Asset Inventory (CIS Controls)
 
 > This guide covers common issues when collecting software inventory on Windows and Linux and exporting results to CSV.
 
