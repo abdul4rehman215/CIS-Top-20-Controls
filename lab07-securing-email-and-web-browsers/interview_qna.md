@@ -1,4 +1,4 @@
-# 🧠 Interview Q&A — Lab 07: Securing Email & Web Browsers (CIS Control 7)
+# 🧠 Interview Q&A — Lab 07: Securing Email & Web Browsers (CIS Controls)
 
 > This Q&A covers phishing defenses in email clients and practical browser hardening using add-ons and secure settings.
 
