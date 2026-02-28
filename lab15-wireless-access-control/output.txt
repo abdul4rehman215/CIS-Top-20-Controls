@@ -1,0 +1,80 @@
+# Lab 15: Wireless Access Control (CIS Controls)
+# Execution Output Log (Windows + Router GUI observations + Linux documentation)
+
+# -------------------------------------------------------
+# Task 1: Access the Wireless Router's Admin Page
+# -------------------------------------------------------
+
+# Windows client: Confirm default gateway (router IP)
+
+C:\> ipconfig
+
+Windows IP Configuration
+
+Wireless LAN adapter Wi-Fi:
+
+   Connection-specific DNS Suffix  . :
+   IPv4 Address. . . . . . . . . . . : 192.168.1.101
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+
+# Router admin page IP identified: 192.168.1.1
+
+# Browser access + login (manual)
+
+Router login successful. Admin dashboard opened.
+
+# -------------------------------------------------------
+# Task 2: Enable WPA2 or WPA3 Encryption (Router GUI)
+# -------------------------------------------------------
+
+# Router configuration (Wireless Security)
+
+Settings applied successfully.
+Wireless network restarted to apply encryption changes.
+Clients were temporarily disconnected.
+
+# Selected:
+# - WPA2-PSK (AES) (WPA3 not supported on this router model in lab)
+# - New strong passphrase set (12+ characters, complex)
+
+# -------------------------------------------------------
+# Task 3: Disable WPS (Router GUI)
+# -------------------------------------------------------
+
+WPS has been disabled successfully.
+
+# -------------------------------------------------------
+# Task 4: Verify Unauthorized Access Prevention (Client Devices)
+# -------------------------------------------------------
+
+# Step 1: Disconnect known (authorized) device
+
+Device disconnected from Wi-Fi (network requires re-authentication after security changes).
+
+# Step 2: Attempt unauthorized connection (wrong password)
+
+Unable to connect to this network.
+Authentication failed (incorrect password).
+
+# Result: Unauthorized access blocked successfully.
+
+# Step 3: Reconnect authorized device (correct password)
+
+Connected successfully.
+IPv4 assigned: 192.168.1.101
+Internet access: OK
+
+# -------------------------------------------------------
+# Documentation (Linux host)
+# -------------------------------------------------------
+
+toor@ip-172-31-10-231:~$ mkdir -p Lab15_Wireless_Access_Control
+toor@ip-172-31-10-231:~$
+
+toor@ip-172-31-10-231:~$ nano Lab15_Wireless_Access_Control/wireless_security_checklist.md
+# (Saved and exited nano)
+
+toor@ip-172-31-10-231:~$ ls -l Lab15_Wireless_Access_Control/
+total 4
+-rw-r--r-- 1 toor toor 709 Feb 28 16:58 wireless_security_checklist.md
