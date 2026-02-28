@@ -121,7 +121,7 @@ lab24-siem-integration-for-logs/
 └── tests/
 └── lab24_test_events.md
 
-```id="7z2rzi"
+```
 
 > Passwords in configs are kept as lab placeholders (example only).  
 > In real environments, secrets should be stored using secure keystores or secret managers (not committed).
