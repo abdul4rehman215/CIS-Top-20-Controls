@@ -1,0 +1,35 @@
+Lab 11 - Secure Configuration for Network Devices
+Date: 2026-02-28
+Device: Router (Cisco-like CLI simulation)
+
+Key Security Changes Applied:
+1) Management Access
+   - Enabled SSH (version 2)
+   - Configured VTY lines to accept SSH only
+
+2) Credentials
+   - Created new local user: newuser
+   - Changed from default login approach to local authenticated access
+
+3) Service Hardening
+   - Disabled HTTP management service
+   - Kept HTTPS management enabled
+
+Verification Commands Used:
+- show services
+- show running-config
+- write memory / copy running-config startup-config
+
+Relevant Running-Config Snippet:
+--------------------------------
+username newuser password 0 newpassword
+ip ssh version 2
+line vty 0 4
+ transport input ssh
+ login local
+no ip http server
+ip http secure-server
+--------------------------------
+Notes:
+- Default credentials should be disabled/removed where supported.
+- Management access should be restricted to trusted IPs/VLANs in production.
