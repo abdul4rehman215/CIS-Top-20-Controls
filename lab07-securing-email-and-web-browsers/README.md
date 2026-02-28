@@ -1,4 +1,4 @@
-# 📧🛡️ Lab 07: Securing Email & Web Browsers (CIS Control 7)
+# 📧🛡️ Lab 07: Securing Email & Web Browsers (CIS Controls)
 
 > **Environment:** Ubuntu 24.04.1 LTS (Cloud Lab Environment)  
 > **User:** toor  
@@ -50,13 +50,11 @@ lab07-securing-email-and-web-browsers/
 ├── output.txt
 ├── interview_qna.md
 ├── troubleshooting.md
-├── scripts/
-│   └── (none for this lab)
 └── artifacts/
     └── browser_email_security_checklist.md
 ```
 
-> ✅ Note: This lab focuses on software installation, GUI configuration steps, and verification. No scripts were required.
+> ✅ Note: This lab focuses on software installation, GUI configuration steps, and verification.
 
 ---
 
