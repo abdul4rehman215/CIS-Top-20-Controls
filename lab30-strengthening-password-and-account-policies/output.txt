@@ -1,0 +1,208 @@
+Lab 30 — Strengthening Password & Account Policies
+Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: Outputs below are sample/simulated from an authorized lab environment and formatted like a real lab run for GitHub documentation.
+Security note: Passwords are not written in plaintext in this lab log—only “weak vs strong” behavior is documented.
+
+====================================================================
+Task 1: Reviewing Current Password Policy
+====================================================================
+
+--------------------------------------------------------------------
+Windows 11 Pro — Local Security Policy (GUI) Review
+--------------------------------------------------------------------
+
+Action Performed (GUI):
+- Opened Run (Win + R)
+- Entered: secpol.msc
+- Navigated: Account Policies → Password Policy
+
+Observed Current Settings (Before):
+Windows Password Policy (Before):
+- Minimum password length: 8
+- Password must meet complexity requirements: Disabled
+- Maximum password age: 0 (Password never expires) [example]
+- Enforce password history: 0
+
+Finding:
+- Current settings allow short passwords and no complexity enforcement.
+
+Risk:
+- Weak passwords increase risk of brute force and credential stuffing.
+
+--------------------------------------------------------------------
+Ubuntu 24.04.1 — Review password aging and PAM baseline
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-178:~$ sudo chage -l toor
+Last password change                                    : Feb 20, 2026
+Password expires                                        : never
+Password inactive                                       : never
+Account expires                                         : never
+Minimum number of days between password change          : 0
+Maximum number of days between password change          : 99999
+Number of days of warning before password expires       : 7
+
+toor@ip-172-31-10-178:~$ sudo sed -n '1,120p' /etc/pam.d/common-password
+#
+# /etc/pam.d/common-password - password-related modules
+#
+password    [success=1 default=ignore]      pam_unix.so obscure yescrypt
+password    requisite                       pam_deny.so
+password    required                        pam_permit.so
+password    optional                        pam_cap.so
+
+[Note]
+Strong complexity enforcement is typically handled via pwquality settings in /etc/security/pwquality.conf.
+
+====================================================================
+Task 2: Adjusting Password Policy
+====================================================================
+
+--------------------------------------------------------------------
+Windows 11 Pro — Policy Hardening (GUI)
+--------------------------------------------------------------------
+
+Action Performed (GUI):
+- Opened secpol.msc
+- Updated:
+  - Minimum password length → 12
+  - Complexity requirements → Enabled
+  - Maximum password age → 90 days
+
+Observed Updated Settings (After):
+Windows Password Policy (After):
+- Minimum password length: 12
+- Password must meet complexity requirements: Enabled
+- Maximum password age: 90 days
+
+--------------------------------------------------------------------
+Ubuntu — Update pwquality.conf to enforce complexity
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-178:~$ sudo cp /etc/security/pwquality.conf /etc/security/pwquality.conf.bak
+
+toor@ip-172-31-10-178:~$ sudo nano /etc/security/pwquality.conf
+[nano opened /etc/security/pwquality.conf]
+
+[Added/updated lines]
+minlen=12
+dcredit=-1
+ucredit=-1
+lcredit=-1
+ocredit=-1
+
+toor@ip-172-31-10-178:~$ sudo egrep -n "^(minlen|dcredit|ucredit|lcredit|ocredit)" /etc/security/pwquality.conf
+121:minlen=12
+122:dcredit=-1
+123:ucredit=-1
+124:lcredit=-1
+125:ocredit=-1
+
+--------------------------------------------------------------------
+Ubuntu — Apply password expiration policy to user toor
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-178:~$ sudo chage -M 90 -m 7 -W 7 toor
+
+toor@ip-172-31-10-178:~$ sudo chage -l toor
+Last password change                                    : Feb 20, 2026
+Password expires                                        : May 21, 2026
+Password inactive                                       : never
+Account expires                                         : never
+Minimum number of days between password change          : 7
+Maximum number of days between password change          : 90
+Number of days of warning before password expires       : 7
+
+====================================================================
+Task 3: Testing Policy Enforcement
+====================================================================
+
+--------------------------------------------------------------------
+Windows 11 Pro — Enforcement Test (GUI)
+--------------------------------------------------------------------
+
+Windows Policy Enforcement Test:
+- Attempted weak password: Rejected (does not meet complexity/length)
+- Attempted compliant password: Accepted
+- Test user login: Successful
+
+--------------------------------------------------------------------
+Ubuntu — Create a test user and validate enforcement
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-178:~$ sudo adduser testuser
+Adding user `testuser' ...
+Adding new group `testuser' (1002) ...
+Adding new user `testuser' (1002) with group `testuser' ...
+Creating home directory `/home/testuser' ...
+Copying files from `/etc/skel' ...
+New password:
+Retype new password:
+passwd: password updated successfully
+Changing the user information for testuser
+Enter the new value, or press ENTER for the default
+        Full Name []: Lab Test User
+        Room Number []:
+        Work Phone []:
+        Home Phone []:
+        Other []:
+Is the information correct? [Y/n] Y
+Adding new user `testuser' to supplemental / extra groups `users' ...
+Adding user `testuser' to group `users' ...
+
+--------------------------------------------------------------------
+Attempt setting a weak password (should fail)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-178:~$ sudo passwd testuser
+New password:
+Retype new password:
+BAD PASSWORD: The password is too short
+BAD PASSWORD: The password fails the dictionary check
+passwd: Authentication token manipulation error
+passwd: password unchanged
+
+--------------------------------------------------------------------
+Set a compliant password (should succeed)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-178:~$ sudo passwd testuser
+New password:
+Retype new password:
+passwd: password updated successfully
+
+--------------------------------------------------------------------
+Verify password aging policy for testuser (before applying chage)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-178:~$ sudo chage -l testuser
+Last password change                                    : Feb 28, 2026
+Password expires                                        : May 29, 2026
+Password inactive                                       : never
+Account expires                                         : never
+Minimum number of days between password change          : 0
+Maximum number of days between password change          : 99999
+Number of days of warning before password expires       : 7
+
+Important learner note:
+- chage settings were applied to toor earlier; to enforce rotation for testuser too, apply chage to that account as well.
+
+--------------------------------------------------------------------
+Apply same expiration policy to testuser and verify again
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-178:~$ sudo chage -M 90 -m 7 -W 7 testuser
+
+toor@ip-172-31-10-178:~$ sudo chage -l testuser
+Last password change                                    : Feb 28, 2026
+Password expires                                        : May 29, 2026
+Password inactive                                       : never
+Account expires                                         : never
+Minimum number of days between password change          : 7
+Maximum number of days between password change          : 90
+Number of days of warning before password expires       : 7
+
+====================================================================
+End of Lab 30 Output Log
+====================================================================
