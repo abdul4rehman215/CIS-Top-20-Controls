@@ -1,0 +1,24 @@
+Scan Validation Notes
+=====================
+
+Scan Tool: nmap
+Scan Type: Ping Sweep (-sP)
+Scan Range: 172.31.10.0/24
+Scan Date: 2026-02-28
+
+Hosts discovered (Up):
+- 172.31.10.1   (likely default gateway/router)
+- 172.31.10.25  (active host/instance)
+- 172.31.10.47  (active host/instance)
+- 172.31.10.88  (active host/instance)
+- 172.31.10.121 (this machine)
+
+Validation Summary:
+- In a real local office network (192.168.1.0/24 style), the scan results should include PCs, laptops,
+  printers, access points, switches (if they respond), and other managed devices.
+- In this cloud lab network, results reflect reachable hosts on the EC2 subnet, so the scan serves as a
+  demonstration of the verification process rather than a full audit of office hardware.
+
+Action:
+- For production usage, scan the actual office subnet (example: 192.168.1.0/24) and confirm each device
+  in the inventory appears in results or is otherwise accounted for (static devices may block ICMP).
