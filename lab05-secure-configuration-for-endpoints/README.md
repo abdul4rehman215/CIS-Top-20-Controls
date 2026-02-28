@@ -1,4 +1,4 @@
-# 🧰🔒 Lab 05: Secure Configuration for Endpoints (CIS Control 5)
+# 🧰🔒 Lab 05: Secure Configuration for Endpoints (CIS Controls)
 
 > **Environments:**  
 > - **Linux:** Ubuntu 24.04.1 LTS (Cloud Lab Environment)  
@@ -67,13 +67,11 @@ lab05-secure-configuration-for-endpoints/
 ├── output.txt
 ├── interview_qna.md
 ├── troubleshooting.md
-├── scripts/
-│   └── (none for this lab)
 └── artifacts/
     └── configuration_checklist.md
 ```
 
-> ✅ Note: This lab focused on configuration changes and verification commands. No standalone scripts were required.
+> ✅ Note: This lab focused on configuration changes and verification commands.
 
 ---
 
