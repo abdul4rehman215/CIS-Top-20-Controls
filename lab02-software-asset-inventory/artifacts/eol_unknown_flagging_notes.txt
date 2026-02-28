@@ -1,0 +1,41 @@
+EOL / Unknown Software Flagging Notes
+====================================
+
+Files Generated:
+- installed_software.csv (Linux dpkg inventory export)
+- installed_software.csv (Windows WMIC export)
+
+How to analyze in spreadsheet:
+1) Open installed_software.csv in LibreOffice Calc / Google Sheets.
+2) Add a new column: "Status" with values: OK / UNKNOWN / EOL / REVIEW.
+3) Sort by Vendor/Maintainer and Version.
+
+What to flag:
+- UNKNOWN:
+  - Entries with missing Vendor/Maintainer fields
+  - Entries with unusual vendor names, or software you cannot verify online
+
+- EOL:
+  - Old Java (e.g., Java 8 very old updates) or unsupported JRE/JDK builds
+  - Old Adobe Reader builds that are no longer supported
+  - Old browsers or plugins
+  - Any software with official EOL notice from vendor
+
+Linux quick focus list (security-critical):
+- openssl
+- openssh-client / openssh-server
+- sudo
+- curl
+- python3
+- nmap
+
+Windows quick focus list (security-critical/common):
+- Java
+- Adobe Reader
+- Browser versions (Chrome/Edge)
+- Zoom (frequent security patches)
+- Microsoft Office version/build
+
+Recommendation:
+- Cross-reference versions with vendor pages or security trackers.
+- If EOL: plan uninstall/upgrade and document risk (CVEs, support ended).
