@@ -1,0 +1,6 @@
+Budget Q1 (Sample)
+------------------
+Department: Finance
+Owner: finance_user
+Notes:
+- Confidential finance document for controlled access lab.
