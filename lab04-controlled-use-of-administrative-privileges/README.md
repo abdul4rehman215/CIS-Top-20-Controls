@@ -1,4 +1,4 @@
-# 🔐 Lab 04: Controlled Use of Administrative Privileges (CIS Control 4)
+# 🔐 Lab 04: Controlled Use of Administrative Privileges (CIS Controls)
 
 > **Environment:** Ubuntu 24.04.1 LTS (Cloud Lab Environment)  
 > **User:** toor  
@@ -46,13 +46,11 @@ lab04-controlled-use-of-administrative-privileges/
 ├── output.txt
 ├── interview_qna.md
 ├── troubleshooting.md
-├── scripts/
-│   └── (none for this lab)
 └── artifacts/
     └── change_log.txt
 ```
 
-> ✅ Note: This lab is user/group management + documentation based, so no scripts were required.
+> ✅ Note: This lab is user/group management + documentation based.
 
 ---
 
