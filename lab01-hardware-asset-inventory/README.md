@@ -1,4 +1,4 @@
-# 🛠️ Lab 01: Hardware Asset Inventory (CIS Control 1)
+# 🛠️ Lab 01: Hardware Asset Inventory (CIS Controls)
 
 > **Environment:** Ubuntu 24.04.1 LTS (Cloud Lab Environment)  
 > **User:** toor  
@@ -46,14 +46,10 @@ lab01-hardware-asset-inventory/
 ├── output.txt
 ├── interview_qna.md
 ├── troubleshooting.md
-├── scripts/
-│   └── (none for this lab)
 └── artifacts/
     ├── hardware_inventory.txt
     └── scan_validation_notes.txt
 ```
-
-> ✅ Note: This lab is primarily command-line and documentation based, so **no scripts** were required.
 
 ---
 
