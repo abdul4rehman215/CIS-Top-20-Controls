@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting Guide — Lab 12: Boundary Defense (CIS Control 12)
+# 🛠️ Troubleshooting Guide — Lab 12: Boundary Defense (CIS Controls)
 
 > This guide covers common issues when verifying firewall rules, denying ports, and testing boundary enforcement using netcat.
 
