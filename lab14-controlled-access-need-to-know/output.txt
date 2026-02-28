@@ -1,0 +1,124 @@
+# Lab 14: Controlled Access Based on Need-to-Know (CIS Controls)
+# Execution Output Log (Sequential)
+
+# -------------------------------------------------------
+# Task 1: Create a "Finance" Folder
+# -------------------------------------------------------
+
+toor@ip-172-31-10-222:~$ cd ~
+toor@ip-172-31-10-222:~$
+
+toor@ip-172-31-10-222:~$ mkdir Finance
+toor@ip-172-31-10-222:~$
+
+toor@ip-172-31-10-222:~$ ls -ld Finance
+drwxr-xr-x 2 toor toor 4096 Feb 28 16:12 Finance
+
+# -------------------------------------------------------
+# Task 2: Assign Read/Write Permissions to a Specific User/Group
+# -------------------------------------------------------
+
+toor@ip-172-31-10-222:~$ cut -d: -f1 /etc/passwd | head -n 25
+root
+daemon
+bin
+sys
+sync
+games
+man
+lp
+mail
+news
+uucp
+proxy
+www-data
+backup
+list
+irc
+_apt
+nobody
+systemd-network
+systemd-resolve
+messagebus
+pollinate
+syslog
+uuidd
+toor
+
+toor@ip-172-31-10-222:~$ sudo useradd finance_user
+toor@ip-172-31-10-222:~$
+
+toor@ip-172-31-10-222:~$ id finance_user
+uid=1004(finance_user) gid=1004(finance_user) groups=1004(finance_user)
+
+toor@ip-172-31-10-222:~$ sudo groupadd finance_group
+toor@ip-172-31-10-222:~$
+
+toor@ip-172-31-10-222:~$ getent group finance_group
+finance_group:x:1005:
+
+toor@ip-172-31-10-222:~$ sudo usermod -aG finance_group finance_user
+toor@ip-172-31-10-222:~$
+
+toor@ip-172-31-10-222:~$ id finance_user
+uid=1004(finance_user) gid=1004(finance_user) groups=1004(finance_user),1005(finance_group)
+
+toor@ip-172-31-10-222:~$ sudo chown :finance_group Finance
+toor@ip-172-31-10-222:~$
+
+toor@ip-172-31-10-222:~$ ls -ld Finance
+drwxr-xr-x 2 toor finance_group 4096 Feb 28 16:12 Finance
+
+toor@ip-172-31-10-222:~$ sudo chmod 770 Finance
+toor@ip-172-31-10-222:~$
+
+toor@ip-172-31-10-222:~$ ls -ld Finance
+drwxrwx--- 2 toor finance_group 4096 Feb 28 16:12 Finance
+
+# -------------------------------------------------------
+# Task 3: Attempt to Access the Folder with an Unauthorized Account
+# -------------------------------------------------------
+
+toor@ip-172-31-10-222:~$ sudo useradd -m demo_user
+toor@ip-172-31-10-222:~$
+
+toor@ip-172-31-10-222:~$ id demo_user
+uid=1006(demo_user) gid=1006(demo_user) groups=1006(demo_user)
+
+toor@ip-172-31-10-222:~$ su - demo_user
+demo_user@ip-172-31-10-222:~$
+
+demo_user@ip-172-31-10-222:~$ cd /home/toor/Finance
+-sh: cd: /home/toor/Finance: Permission denied
+
+demo_user@ip-172-31-10-222:~$ ls /home/toor/Finance
+ls: cannot open directory '/home/toor/Finance': Permission denied
+
+demo_user@ip-172-31-10-222:~$ exit
+toor@ip-172-31-10-222:~$
+
+# -------------------------------------------------------
+# Task 4: Confirm Authorized User Can Access
+# -------------------------------------------------------
+
+toor@ip-172-31-10-222:~$ getent passwd finance_user
+finance_user:x:1004:1004::/home/finance_user:/bin/sh
+
+toor@ip-172-31-10-222:~$ sudo mkdir -p /home/finance_user && sudo chown -R finance_user:finance_user /home/finance_user
+toor@ip-172-31-10-222:~$
+
+toor@ip-172-31-10-222:~$ su - finance_user
+finance_user@ip-172-31-10-222:~$
+
+finance_user@ip-172-31-10-222:~$ cd /home/toor/Finance
+finance_user@ip-172-31-10-222:/home/toor/Finance$
+
+finance_user@ip-172-31-10-222:/home/toor/Finance$ ls
+
+# (Created file using nano and saved)
+
+finance_user@ip-172-31-10-222:/home/toor/Finance$ ls -l
+-rw-r--r-- 1 finance_user finance_user 151 Feb 28 16:35 budget_q1.txt
+
+finance_user@ip-172-31-10-222:/home/toor/Finance$ exit
+toor@ip-172-31-10-222:~$
