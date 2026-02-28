@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting Guide — Lab 04: Controlled Use of Administrative Privileges (CIS Control 4)
+# 🛠️ Troubleshooting Guide — Lab 04: Controlled Use of Administrative Privileges (CIS Controls)
 
 > This guide covers common problems when auditing and modifying administrative privileges on Linux systems.
 
