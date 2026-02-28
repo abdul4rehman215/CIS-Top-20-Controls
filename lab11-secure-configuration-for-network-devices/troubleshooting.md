@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting Guide — Lab 11: Secure Configuration for Network Devices (CIS Control 11)
+# 🛠️ Troubleshooting Guide — Lab 11: Secure Configuration for Network Devices (CIS Controls)
 
 > This guide covers common issues when accessing and hardening network device management interfaces (Web UI, SSH, Console) and saving configuration changes.
 
