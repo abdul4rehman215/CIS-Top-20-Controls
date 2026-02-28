@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting Guide — Lab 01: Hardware Asset Inventory (CIS Control 1)
+# 🛠️ Troubleshooting Guide — Lab 01: Hardware Asset Inventory (CIS Controls)
 
 > This guide lists common issues encountered while creating an inventory and validating discoverable hosts using `nmap`.
 
