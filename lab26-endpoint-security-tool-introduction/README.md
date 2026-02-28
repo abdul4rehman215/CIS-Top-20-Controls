@@ -92,7 +92,7 @@ lab26-endpoint-security-tool-introduction/
 └── artifacts/
 └── eicar.com
 
-```id="d8x7zq"
+```
  
 > This lab uses safe placeholders and a benign test pattern (EICAR).
 
