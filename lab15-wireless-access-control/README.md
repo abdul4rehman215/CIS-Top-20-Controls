@@ -1,4 +1,4 @@
-# 📶🔐 Lab 15: Wireless Access Control (CIS Control 15)
+# 📶🔐 Lab 15: Wireless Access Control (CIS Controls)
 
 > **Environment:** Home/Lab Wi-Fi Router Admin Web Interface + Client Devices  
 > **Client OS Used (example):** Windows/Linux laptop + a second device (unauthorized test)  
