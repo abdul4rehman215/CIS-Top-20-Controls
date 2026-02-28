@@ -1,4 +1,4 @@
-# 💿 Lab 02: Software Asset Inventory (CIS Control 2)
+# 💿 Lab 02: Software Asset Inventory (CIS Controls)
 
 > **Environments:**  
 > - **Windows:** Command Prompt (Administrator)  
@@ -58,8 +58,6 @@ lab02-software-asset-inventory/
 ├── output.txt
 ├── interview_qna.md
 ├── troubleshooting.md
-├── scripts/
-│   └── (none for this lab)
 └── artifacts/
     ├── windows_installed_software.csv
     ├── linux_installed_software.csv
