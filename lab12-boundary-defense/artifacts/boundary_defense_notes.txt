@@ -1,0 +1,15 @@
+Lab 12 - Boundary Defense Notes
+Date: 2026-02-28
+System: Ubuntu 24.04.1 LTS
+
+Firewall: UFW
+- Default incoming: deny
+- Default outgoing: allow
+Rules:
+- Allow 22/tcp (SSH)
+- Deny 23 (Telnet)
+- Deny 8080 (unused inbound port)
+
+Testing:
+- nc -vz 172.31.10.207 8080  -> Connection timed out (blocked)
+- nc -vz 172.31.10.207 22    -> succeeded (allowed)
