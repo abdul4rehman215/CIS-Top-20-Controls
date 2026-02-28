@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting — Lab 14: Controlled Access Based on Need-to-Know (CIS Controls)
+# 🛠️ Troubleshooting Guide — Lab 14: Controlled Access Based on Need-to-Know (CIS Controls)
 
 > This guide covers common issues when creating users/groups, applying permissions, and validating authorized vs unauthorized access.
 
