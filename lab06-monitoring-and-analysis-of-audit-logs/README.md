@@ -1,4 +1,4 @@
-# 📊🕵️ Lab 06: Monitoring & Analysis of Audit Logs (CIS Control 6)
+# 📊🕵️ Lab 06: Monitoring & Analysis of Audit Logs (CIS Controls)
 
 > **Environments:**  
 > - **Windows:** Event Viewer + Local Security Policy  
