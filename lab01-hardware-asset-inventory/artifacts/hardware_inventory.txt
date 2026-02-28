@@ -1,0 +1,17 @@
+Hardware Asset Inventory - Initial List
+======================================
+
+Asset ID  Asset Type      Model/Description              Serial Number     Location         Owner/Responsible Party
+--------  -------------   ------------------------------  ---------------   --------------   ------------------------
+PC001     Desktop PC      Dell OptiPlex 7090              DOPT7090-1A3F      Office-1         John Doe (IT Department)
+LT001     Laptop          HP ProBook 450 G8               HPPB450-91C2       Office-2         Sarah Khan (HR)
+LT002     Laptop          Lenovo ThinkPad T14 Gen 2       LNT14G2-55B8       Remote           Abdul Rehman (Security)
+NW001     Router          TP-Link Archer C6 (Gateway)     TPLARC6-7D11       Server Room      John Doe (IT Department)
+NW002     Switch          Cisco SG110-16 (16-port)        CSG110-3F9A        Server Room      John Doe (IT Department)
+PR001     Printer         HP LaserJet Pro M404dn          HPLJ404-2C7E       Reception        Admin Team
+SV001     Server          Dell PowerEdge T40             DPT40-8E12         Server Room      Security Team
+AP001     Access Point    Ubiquiti UniFi AP-AC Lite       UAPACL-19F4        Office Floor     Network Team
+
+Notes:
+- Asset IDs are unique and should be labeled physically on each device.
+- Owners are responsible for updates, maintenance, and change tracking.
