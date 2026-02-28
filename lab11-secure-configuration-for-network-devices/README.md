@@ -1,4 +1,4 @@
-# 🛜🔐 Lab 11: Secure Configuration for Network Devices (CIS Control 11)
+# 🛜🔐 Lab 11: Secure Configuration for Network Devices (CIS Controla)
 
 > **Environment(s):**
 > - **Windows/Linux host:** used to find gateway + access device
