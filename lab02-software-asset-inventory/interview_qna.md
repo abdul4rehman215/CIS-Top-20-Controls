@@ -1,4 +1,4 @@
-# 🧠 Interview Q&A — Lab 02: Software Asset Inventory (CIS Control 2)
+# 🧠 Interview Q&A — Lab 02: Software Asset Inventory (CIS Controls)
 
 > This Q&A covers software inventory collection on Windows and Linux, CSV exporting, and the process of flagging UNKNOWN/EOL software.
 
