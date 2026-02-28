@@ -1,4 +1,4 @@
-# 🧠 Interview Q&A — Lab 10: Data Recovery Capabilities (CIS Control 10)
+# 🧠 Interview Q&A — Lab 10: Data Recovery Capabilities (CIS Controls)
 
 > This Q&A covers backup concepts, manual archiving, scheduling backups, restore validation, and integrity verification.
 
