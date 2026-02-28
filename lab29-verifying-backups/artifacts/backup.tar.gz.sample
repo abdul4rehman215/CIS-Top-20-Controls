@@ -1,0 +1,10 @@
+(Placeholder reference — backup archives are typically not committed to GitHub.)
+
+Lab assumption:
+- A previously created archive named: backup.tar.gz
+- Verified present using: ls -lh backup.tar.gz
+- Restored using: tar -xzvf backup.tar.gz -C restored_backup_directory/
+
+In production repositories:
+- Store backups in dedicated backup storage (object storage, backup server, vault)
+- Keep only scripts, checks, and verification logs in GitHub
