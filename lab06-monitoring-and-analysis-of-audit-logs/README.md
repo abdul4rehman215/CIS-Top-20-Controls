@@ -60,8 +60,6 @@ lab06-monitoring-and-analysis-of-audit-logs/
 ├── output.txt
 ├── interview_qna.md
 ├── troubleshooting.md
-├── scripts/
-│   └── (none for this lab)
 └── artifacts/
     ├── auth.log
     ├── windows_security.evtx
@@ -72,7 +70,6 @@ lab06-monitoring-and-analysis-of-audit-logs/
 >
 > * Linux `auth.log` is copied into a safe analysis folder and then committed as an artifact.
 > * Windows Security log export is stored as `windows_security.evtx` for consistency.
-> * `notes.md` documents investigation observations and conclusions (optional but recommended for portfolio evidence).
 
 ---
 
@@ -247,9 +244,5 @@ Stored under `artifacts/`:
 ### 🪟 Windows
 
 * `windows_security.evtx` *(exported from Event Viewer Security logs)*
-
-### Notes (Optional but recommended)
-
-* `notes.md` *(brief investigation notes and conclusions)*
 
 ---
