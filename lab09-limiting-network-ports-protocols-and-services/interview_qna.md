@@ -1,4 +1,4 @@
-# 🧠 Interview Q&A — Lab 09: Limiting Network Ports, Protocols, & Services (CIS Control 9)
+# 🧠 Interview Q&A — Lab 09: Limiting Network Ports, Protocols, & Services (CIS Controls)
 
 > This Q&A covers port discovery, service exposure, firewall controls (UFW/iptables), and verification concepts.
 
