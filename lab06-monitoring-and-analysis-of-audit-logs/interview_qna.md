@@ -1,4 +1,4 @@
-# 🧠 Interview Q&A — Lab 06: Monitoring & Analysis of Audit Logs (CIS Control 6)
+# 🧠 Interview Q&A — Lab 06: Monitoring & Analysis of Audit Logs (CIS Controls)
 
 > This Q&A covers audit logging concepts, Windows Security logs, Linux rsyslog/auth.log configuration, and brute-force pattern detection.
 
