@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting Guide — Lab 07: Securing Email & Web Browsers (CIS Control 7)
+# 🛠️ Troubleshooting Guide — Lab 07: Securing Email & Web Browsers (CIS Controls)
 
 > This guide covers common issues when installing Thunderbird/Firefox, enabling phishing protections, and configuring browser security add-ons/settings.
 
