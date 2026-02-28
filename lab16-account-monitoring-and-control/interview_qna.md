@@ -1,6 +1,6 @@
 # 🎤 Interview Q&A — Lab 16: Account Monitoring & Control
 
-Below are interview-style questions and answers based on the work completed in this lab. These focus on practical Linux administration and security hardening aligned with CIS account governance.
+> Below are interview-style questions and answers based on the work completed in this lab. These focus on practical Linux administration and security hardening aligned with CIS account governance.
 
 ---
 
