@@ -1,4 +1,4 @@
-# 🧠 Interview Q&A — Lab 04: Controlled Use of Administrative Privileges (CIS Control 4)
+# 🧠 Interview Q&A — Lab 04: Controlled Use of Administrative Privileges (CIS Controls)
 
 > This Q&A focuses on least privilege, sudo group auditing, sudoers configuration, and safe privilege changes.
 
