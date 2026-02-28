@@ -1,4 +1,4 @@
-# 💾🧯 Lab 10: Data Recovery Capabilities (CIS Control 10)
+# 💾🧯 Lab 10: Data Recovery Capabilities (CIS Controls)
 
 > **Environment:** Ubuntu 24.04.1 LTS (Cloud Lab Environment)  
 > **User:** toor  
@@ -49,8 +49,6 @@ lab10-data-recovery-capabilities/
 ├── output.txt
 ├── interview_qna.md
 ├── troubleshooting.md
-├── scripts/
-│   └── (none for this lab)
 └── artifacts/
     ├── DocumentsBackup.tar.gz
     ├── crontab.txt
