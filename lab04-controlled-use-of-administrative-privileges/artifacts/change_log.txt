@@ -1,0 +1,16 @@
+[Change Log - 2026-02-28]
+
+1) Downgraded privileges:
+   - Account: intern1
+   - Change: Removed from sudo group
+   - Reason: Intern account should not retain persistent administrative access.
+
+2) Removed unnecessary admin account:
+   - Account: tempadmin
+   - Change: userdel (account removed)
+   - Reason: Temporary admin account no longer required; reduces attack surface.
+
+Verification:
+- Rechecked sudo group membership after each change.
+- Confirmed intern1 account still exists without sudo.
+- Confirmed tempadmin account no longer exists.
