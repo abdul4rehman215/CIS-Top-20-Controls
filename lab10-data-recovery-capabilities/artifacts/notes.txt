@@ -1,0 +1,8 @@
+Project Notes
+=============
+- Backup and restore test files for Lab 10
+- Verify integrity using diff
+- Ensure archive contains all files
+
+Owner: toor
+Date: 2026-02-28
