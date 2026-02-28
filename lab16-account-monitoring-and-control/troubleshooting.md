@@ -1,6 +1,6 @@
-# 🛠️ Troubleshooting — Lab 16: Account Monitoring & Control
+# 🛠️ Troubleshooting Guide — Lab 16: Account Monitoring & Control
 
-This guide covers common issues that may occur while auditing users, locking/removing accounts, and applying session timeout / lockout policies on Ubuntu 24.04.
+> This guide covers common issues that may occur while auditing users, locking/removing accounts, and applying session timeout / lockout policies on Ubuntu 24.04.
 
 ---
 
