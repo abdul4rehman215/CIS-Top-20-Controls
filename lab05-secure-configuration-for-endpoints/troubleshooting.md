@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting Guide — Lab 05: Secure Configuration for Endpoints (CIS Control 5)
+# 🛠️ Troubleshooting Guide — Lab 05: Secure Configuration for Endpoints (CIS Controls)
 
 > This guide covers common issues when auditing and hardening Linux endpoints and applying basic policies on Windows.
 
