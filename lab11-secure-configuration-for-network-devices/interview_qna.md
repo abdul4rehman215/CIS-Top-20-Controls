@@ -1,4 +1,4 @@
-# 🧠 Interview Q&A — Lab 11: Secure Configuration for Network Devices (CIS Control 11)
+# 🧠 Interview Q&A — Lab 11: Secure Configuration for Network Devices (CIS Controls)
 
 > This Q&A covers network device hardening, secure management access, disabling insecure services, and configuration documentation.
 
