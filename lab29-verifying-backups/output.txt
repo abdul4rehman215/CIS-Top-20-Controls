@@ -1,0 +1,95 @@
+Lab 29 — Verifying Backups
+Execution Output Log
+(Full output, sequential, no truncation)
+NOTE: Outputs below are sample/simulated from an authorized lab environment and formatted like a real backup verification run for GitHub documentation.
+
+Environment: Ubuntu 24.04.1 LTS (Cloud Lab Environment)
+User: toor
+
+====================================================================
+Task 1: Restore the Backup
+====================================================================
+
+--------------------------------------------------------------------
+Create original + restore directories (lab workspace)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-168:~$ mkdir -p ~/Lab29_Backups/{original_directory,restored_backup_directory,logs}
+
+toor@ip-172-31-10-168:~$ cd ~/Lab29_Backups
+
+--------------------------------------------------------------------
+Confirm the backup archive exists
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-168:~/Lab29_Backups$ ls -lh backup.tar.gz
+-rw-r--r-- 1 toor toor 12K Feb 28 2026 backup.tar.gz
+
+--------------------------------------------------------------------
+Restore the backup using tar
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-168:~/Lab29_Backups$ tar -xzvf backup.tar.gz -C restored_backup_directory/
+original_directory/
+original_directory/file1.txt
+original_directory/file2.txt
+original_directory/config/
+original_directory/config/app.conf
+original_directory/docs/
+original_directory/docs/readme.md
+original_directory/scripts/
+original_directory/scripts/backup.sh
+
+[Restore completed successfully]
+
+--------------------------------------------------------------------
+Verify the restore process (files present)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-168:~/Lab29_Backups$ ls -l restored_backup_directory/
+total 4
+drwxr-xr-x 5 toor toor 4096 Feb 28 2026 original_directory
+
+toor@ip-172-31-10-168:~/Lab29_Backups$ find restored_backup_directory/original_directory -maxdepth 2 -type f -print
+restored_backup_directory/original_directory/file1.txt
+restored_backup_directory/original_directory/file2.txt
+restored_backup_directory/original_directory/config/app.conf
+restored_backup_directory/original_directory/docs/readme.md
+restored_backup_directory/original_directory/scripts/backup.sh
+
+====================================================================
+Task 2: Compare Restored Files to Original
+====================================================================
+
+--------------------------------------------------------------------
+Compare original and restored directories (recursive diff)
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-168:~/Lab29_Backups$ diff -r original_directory/ restored_backup_directory/original_directory/
+
+[No output from diff indicates directories are identical]
+
+====================================================================
+Task 3: Document Issues and Verify Consistency
+====================================================================
+
+--------------------------------------------------------------------
+Verify integrity using sha256sum
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-168:~/Lab29_Backups$ sha256sum original_directory/file1.txt restored_backup_directory/original_directory/file1.txt
+b4c90f0e9f6b7e10de94d0f64e0c2e4b3f0f2e7f5b8a0f8b4c0f9a2c5d44a8c1  original_directory/file1.txt
+b4c90f0e9f6b7e10de94d0f64e0c2e4b3f0f2e7f5b8a0f8b4c0f9a2c5d44a8c1  restored_backup_directory/original_directory/file1.txt
+
+[Checksums match → file integrity verified]
+
+--------------------------------------------------------------------
+Create verification notes log
+--------------------------------------------------------------------
+
+toor@ip-172-31-10-168:~/Lab29_Backups$ nano logs/verification_notes.md
+[nano opened logs/verification_notes.md]
+
+====================================================================
+End of Lab 29 Output Log
+====================================================================
