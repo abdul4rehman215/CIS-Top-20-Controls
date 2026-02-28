@@ -1,4 +1,4 @@
-# 🌐🧱 Lab 09: Limiting Network Ports, Protocols, & Services (CIS Control 9)
+# 🌐🧱 Lab 09: Limiting Network Ports, Protocols, & Services (CIS Controls)
 
 > **Environment:** Ubuntu 24.04.1 LTS (Cloud Lab Environment)  
 > **User:** toor  
@@ -48,8 +48,6 @@ lab09-limiting-network-ports-protocols-and-services/
 ├── output.txt
 ├── interview_qna.md
 ├── troubleshooting.md
-├── scripts/
-│   └── (none for this lab)
 └── artifacts/
     └── rules.v4
 ```
@@ -57,7 +55,6 @@ lab09-limiting-network-ports-protocols-and-services/
 > ✅ Note:
 >
 > * The system file is stored at `/etc/iptables/rules.v4`.
-> * For GitHub evidence, this lab copies it into `artifacts/rules.v4` (sanitized proof of saved rules).
 
 ---
 
