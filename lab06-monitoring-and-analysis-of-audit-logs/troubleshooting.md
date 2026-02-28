@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting Guide — Lab 06: Monitoring & Analysis of Audit Logs (CIS Control 6)
+# 🛠️ Troubleshooting Guide — Lab 06: Monitoring & Analysis of Audit Logs (CIS Controls)
 
 > This guide covers common issues when enabling, collecting, and analyzing audit logs on Windows and Linux.
 
