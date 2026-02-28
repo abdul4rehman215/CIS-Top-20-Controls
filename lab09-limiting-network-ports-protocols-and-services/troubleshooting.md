@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting Guide — Lab 09: Limiting Network Ports, Protocols, & Services (CIS Control 9)
+# 🛠️ Troubleshooting Guide — Lab 09: Limiting Network Ports, Protocols, & Services (CIS Controls)
 
 > This guide covers common issues when enumerating ports and applying firewall rules with UFW and iptables.
 
