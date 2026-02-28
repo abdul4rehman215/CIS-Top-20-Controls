@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting — Lab 17: Security Awareness Training (Phishing)
+# 🛠️ Troubleshooting Guide — Lab 17: Security Awareness Training (Phishing)
 
 > This guide covers common issues that may occur while creating the training artifacts slides, quiz, feedback, and analysis notes) in a Linux cloud lab environment.
 
