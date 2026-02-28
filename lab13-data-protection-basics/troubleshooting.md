@@ -1,4 +1,4 @@
-# 🛠️ Troubleshooting — Lab 13: Data Protection Basics (CIS Controls)
+# 🛠️ Troubleshooting Guide — Lab 13: Data Protection Basics (CIS Controls)
 
 > This guide covers common issues when encrypting files (Windows), configuring HTTPS (Apache), enabling SSH, and validating TLS encryption.
 
