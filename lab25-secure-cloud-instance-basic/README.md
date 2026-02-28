@@ -127,7 +127,7 @@ lab25-secure-cloud-instance-basic/
 └── notes/
 └── mfa_setup_notes.md
 
-```id="4s8t8b"
+```
 
 > MFA backup codes are **not** stored in the repo (stored offline).  
 > Avoid committing secrets (cloud RC files, tokens, private keys).
