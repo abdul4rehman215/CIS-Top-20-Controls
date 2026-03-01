@@ -1,0 +1,124 @@
+# =====================================================
+# OS / Editor Noise
+# =====================================================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+*.bak
+*.old
+
+.vscode/
+.idea/
+
+# =====================================================
+# Python / Node / Tooling (if used)
+# =====================================================
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =====================================================
+# Secrets / Credentials (NEVER COMMIT)
+# =====================================================
+.env
+.env.*
+**/*secret*
+**/*secrets*/
+**/*password*
+**/*passwd*
+**/*token*
+**/*apikey*
+**/*api_key*
+**/*credentials*
+**/*recovery*
+**/*backup_codes*
+**/*mfa*
+
+# SSH directories
+**/.ssh/
+**/known_hosts
+**/authorized_keys
+
+# =====================================================
+# TLS / Encryption Private Material (CRITICAL)
+# =====================================================
+**/*.key
+**/*.pem
+**/*.p12
+**/*.pfx
+**/*id_rsa*
+**/*id_ed25519*
+
+# (Optional) Uncomment if you do NOT want to track certs
+# **/*.crt
+
+# =====================================================
+# Archives / Large Backup Files
+# (Commit documentation, not raw archives)
+# =====================================================
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+*.gz
+
+# VeraCrypt containers
+*.hc
+*.hc.*
+
+# =====================================================
+# Logs / Runtime Artifacts
+# (Commit sanitized excerpts only)
+# =====================================================
+*.log
+logs/
+**/logs/
+**/log_analysis/
+*.out
+
+# Common security logs
+**/auth.log*
+**/clamav.log*
+
+# =====================================================
+# Packet Captures / Large Scan Artifacts
+# =====================================================
+*.pcap
+*.pcapng
+*.cap
+
+# Optional large exports
+*.html
+*.pdf
+
+# =====================================================
+# SIEM / Elastic / Wazuh Local Data
+# =====================================================
+**/elasticsearch-data/
+**/kibana-data/
+**/wazuh-data/
+**/filebeat-data/
+
+# =====================================================
+# Docker / Local Runtime
+# =====================================================
+**/.docker/
+
+# =====================================================
+# System-generated or massive inventories (Optional)
+# If you want to track sanitized CSV exports,
+# comment these out.
+# =====================================================
+*installed_software*.csv
+*software_inventory*.csv
